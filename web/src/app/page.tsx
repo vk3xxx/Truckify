@@ -1,103 +1,91 @@
+"use client";
 import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <main className="min-h-screen bg-black text-white flex flex-col">
+      {/* Header */}
+      <header className="flex items-center justify-between px-8 py-6 border-b border-gray-800">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl font-bold tracking-tight">Truckify</span>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <nav className="flex gap-8 text-lg">
+          <a href="#features" className="hover:text-yellow-400 transition">Features</a>
+          <a href="#about" className="hover:text-yellow-400 transition">About</a>
+          <a href="#contact" className="hover:text-yellow-400 transition">Contact</a>
+        </nav>
+        <button className="bg-yellow-400 text-black px-6 py-2 rounded-full font-semibold hover:bg-yellow-300 transition">Get Started</button>
+      </header>
+
+      {/* Hero Section */}
+      <section className="flex flex-col md:flex-row items-center justify-between px-8 py-20 bg-black">
+        <div className="max-w-xl">
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
+            Move Anything, <span className="text-yellow-400">Anywhere</span>.<br />
+            <span className="text-gray-300 font-light">The Uber for Trucks.</span>
+          </h1>
+          <p className="text-xl text-gray-300 mb-8">
+            Truckify connects you with reliable, on-demand truck transport for goods of any size. Fast, safe, and easy—just like hailing a ride.
+          </p>
+          <button className="bg-yellow-400 text-black px-8 py-3 rounded-full font-bold text-lg hover:bg-yellow-300 transition">Book a Truck</button>
+        </div>
+        <div className="mt-12 md:mt-0 md:ml-16 flex-shrink-0">
           <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80"
+            alt="Modern truck on the road"
+            width={500}
+            height={350}
+            className="rounded-2xl shadow-lg border-4 border-yellow-400"
+            priority
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="bg-gray-900 py-20 px-8">
+        <h2 className="text-4xl font-bold text-center mb-12 text-yellow-400">Why Truckify?</h2>
+        <div className="grid md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+          <div className="bg-black rounded-xl p-8 border border-gray-800 flex flex-col items-center">
+            <Image src="/file.svg" alt="Fast" width={64} height={64} className="mb-4" />
+            <h3 className="text-2xl font-semibold mb-2">On-Demand</h3>
+            <p className="text-gray-300 text-center">Book a truck instantly, anytime you need to move goods—no waiting, no hassle.</p>
+          </div>
+          <div className="bg-black rounded-xl p-8 border border-gray-800 flex flex-col items-center">
+            <Image src="/globe.svg" alt="Global" width={64} height={64} className="mb-4" />
+            <h3 className="text-2xl font-semibold mb-2">Nationwide</h3>
+            <p className="text-gray-300 text-center">Our network covers cities and regions across the country. Move anything, anywhere.</p>
+          </div>
+          <div className="bg-black rounded-xl p-8 border border-gray-800 flex flex-col items-center">
+            <Image src="/window.svg" alt="Easy" width={64} height={64} className="mb-4" />
+            <h3 className="text-2xl font-semibold mb-2">Effortless</h3>
+            <p className="text-gray-300 text-center">Simple booking, real-time tracking, and transparent pricing—all in one app.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-20 px-8 bg-black">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-yellow-400 mb-6">About Truckify</h2>
+          <p className="text-xl text-gray-300 mb-8">
+            Inspired by Uber's seamless ride-hailing experience, Truckify brings the same convenience to logistics. Whether you're a business or an individual, our platform makes moving goods as easy as booking a ride.
+          </p>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="bg-gray-900 py-20 px-8">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-yellow-400 mb-6">Contact Us</h2>
+          <p className="text-gray-300 mb-8">Have questions or want to partner with us? Reach out and our team will get back to you soon.</p>
+          <a href="mailto:info@truckify.com" className="inline-block bg-yellow-400 text-black px-8 py-3 rounded-full font-bold text-lg hover:bg-yellow-300 transition">Email Us</a>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 px-8 bg-black border-t border-gray-800 text-center text-gray-500 text-sm">
+        &copy; {new Date().getFullYear()} Truckify. Inspired by Uber. All rights reserved.
       </footer>
-    </div>
+    </main>
   );
 }
