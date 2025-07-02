@@ -4,20 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 )
 
 func main() {
 	log.Println("=== Truckify Application Starting ===")
 
-	// Get port from environment variable or default to 3000
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
-		log.Println("No PORT environment variable found, using default: 3000")
-	} else {
-		log.Printf("Using PORT from environment: %s", port)
-	}
+	// Force the app to always listen on port 3000
+	port := "3000"
+	log.Printf("Server will always listen on port %s", port)
 
 	// Define the hello world handler
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -39,6 +33,5 @@ func main() {
 
 	// Start the server
 	log.Printf("Starting Truckify server on 0.0.0.0:%s", port)
-	log.Printf("Server will be available at http://0.0.0.0:%s", port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
