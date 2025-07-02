@@ -25,7 +25,7 @@ func dbHealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	// Check the database
 	connStr := os.Getenv("DB_CONN")
 	if connStr == "" {
-		connStr = "postgres://postgres:supabase@10.0.2.2:5432/postgres?sslmode=disable&connect_timeout=2"
+		connStr = "postgres://postgres:1dJiynbnEPM4GTClNEW2tXxF7LtxyUfgnKpPMlQYrQrv89Nek4BLwS5U1bYCRhdk@10.0.1.9:5432/postgres?sslmode=disable&connect_timeout=2"
 	}
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -49,7 +49,7 @@ func dbHealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprintf(w, "<html><head><title>System Health</title><meta http-equiv='refresh' content='30'></head><body>")
 		fmt.Fprintf(w, "<h2>System Health Check</h2>")
-		fmt.Fprintf(w, "<p>Database checked at: <b>10.0.2.2:5432</b></p>")
+		fmt.Fprintf(w, "<p>Database checked at: <b>10.0.1.9:5432</b></p>")
 		fmt.Fprintf(w, "<ul style='font-size:1.5em;'>")
 		if status.HTTP == "ok" {
 			fmt.Fprintf(w, "<li>HTTP Server: <span style='color:green;'>✔️</span></li>")
