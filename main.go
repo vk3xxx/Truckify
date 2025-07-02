@@ -34,6 +34,9 @@ func main() {
 		fmt.Fprintf(w, "OK")
 	})
 
+	// DB health check endpoint
+	http.HandleFunc("/dbhealthz", dbHealthCheckHandler)
+
 	// Start the server
 	log.Printf("Starting Truckify server on 0.0.0.0:%s", port)
 	log.Printf("Server will be available at http://0.0.0.0:%s", port)
