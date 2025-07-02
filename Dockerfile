@@ -23,10 +23,10 @@ WORKDIR /root/
 COPY --from=builder /app/main .
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3050
 
 # Add healthcheck for /health endpoint
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 CMD curl -f http://localhost:3000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 CMD curl -f http://localhost:3050/health || exit 1
 
 # Run the application with explicit host binding
 CMD ["./main"] 

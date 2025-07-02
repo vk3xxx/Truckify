@@ -9,8 +9,8 @@ import (
 func main() {
 	log.Println("=== Truckify Application Starting ===")
 
-	// Force the app to always listen on port 3000
-	port := "3000"
+	// Force the app to always listen on port 3050
+	port := "3050"
 	log.Printf("Server will always listen on port %s", port)
 
 	// Define the hello world handler
