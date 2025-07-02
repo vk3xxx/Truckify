@@ -38,7 +38,7 @@ services:
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: super-secret-jwt
     ports:
-      - "3500:3000"   # Host port 3500 maps to container port 3000
+      - "3000:3000"
     depends_on:
       - db
 
