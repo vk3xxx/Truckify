@@ -49,7 +49,7 @@ func dbHealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprintf(w, "<html><head><title>System Health</title><meta http-equiv='refresh' content='30'></head><body>")
 		fmt.Fprintf(w, "<h2>System Health Check</h2>")
-		fmt.Fprintf(w, "<p>Database checked at: <b>10.0.1.10:5432</b></p>")
+		fmt.Fprintf(w, "<p>Database checked at: <b>10.0.2.2:5432</b></p>")
 		fmt.Fprintf(w, "<ul style='font-size:1.5em;'>")
 		if status.HTTP == "ok" {
 			fmt.Fprintf(w, "<li>HTTP Server: <span style='color:green;'>✔️</span></li>")
