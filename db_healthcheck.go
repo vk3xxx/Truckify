@@ -13,11 +13,12 @@ import (
 )
 
 type HealthStatus struct {
-	HTTP     string `json:"http"`
-	Database string `json:"database"`
+	HTTP        string `json:"http"`
+	Database    string `json:"database"`
+	UserService string `json:"user_service"`
 }
 
-// dbHealthCheckHandler checks both the HTTP server and the database server
+// dbHealthCheckHandler checks both the HTTP server, the database server, and the user service
 func dbHealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	status := HealthStatus{HTTP: "ok"}
 	code := http.StatusOK
@@ -44,6 +45,20 @@ func dbHealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Check the User Service
+	userServiceStatus := "ok"
+	resp, err := http.Get("http://localhost:4000/health")
+	if err != nil || resp.StatusCode != http.StatusOK {
+		userServiceStatus = "error"
+		if err != nil {
+			userServiceStatus += ": " + err.Error()
+		} else {
+			userServiceStatus += ": status code " + fmt.Sprint(resp.StatusCode)
+		}
+		code = http.StatusInternalServerError
+	}
+	status.UserService = userServiceStatus
+
 	accept := r.Header.Get("Accept")
 	if strings.Contains(accept, "text/html") || strings.Contains(r.URL.RawQuery, "html") {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -60,6 +75,11 @@ func dbHealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "<li>Database: <span style='color:green;'>✔️</span></li>")
 		} else {
 			fmt.Fprintf(w, "<li>Database: <span style='color:red;'>❌</span> <span style='font-size:0.7em;'>%s</span></li>", status.Database)
+		}
+		if status.UserService == "ok" {
+			fmt.Fprintf(w, "<li>User Service: <span style='color:green;'>✔️</span></li>")
+		} else {
+			fmt.Fprintf(w, "<li>User Service: <span style='color:red;'>❌</span> <span style='font-size:0.7em;'>%s</span></li>", status.UserService)
 		}
 		fmt.Fprintf(w, "</ul>")
 		fmt.Fprintf(w, "</body></html>")
