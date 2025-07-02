@@ -10,11 +10,11 @@ import (
 func main() {
 	log.Println("=== Truckify Application Starting ===")
 
-	// Get port from environment variable or default to 8080
+	// Get port from environment variable or default to 3000
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
-		log.Println("No PORT environment variable found, using default: 8080")
+		port = "3000"
+		log.Println("No PORT environment variable found, using default: 3000")
 	} else {
 		log.Printf("Using PORT from environment: %s", port)
 	}
@@ -36,5 +36,6 @@ func main() {
 
 	// Start the server
 	log.Printf("Starting Truckify server on 0.0.0.0:%s", port)
+	log.Printf("Server will be available at http://0.0.0.0:%s", port)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
