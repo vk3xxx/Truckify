@@ -25,7 +25,7 @@ func dbHealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	// Check the database
 	connStr := os.Getenv("DB_CONN")
 	if connStr == "" {
-		connStr = "postgres://postgres:supabase@10.0.1.10:5432/postgres?sslmode=disable&connect_timeout=2"
+		connStr = "postgres://postgres:supabase@10.0.1.10:3500/postgres?sslmode=disable&connect_timeout=2"
 	}
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
