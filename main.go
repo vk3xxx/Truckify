@@ -25,7 +25,7 @@ func main() {
 		fmt.Fprintf(w, "OK")
 	})
 
-	// Start the server
-	log.Printf("Starting Truckify server on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	// Start the server on all interfaces
+	log.Printf("Starting Truckify server on 0.0.0.0:%s", port)
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
