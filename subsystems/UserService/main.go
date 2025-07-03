@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -41,6 +42,27 @@ func ensureUsersTable(db *sql.DB) error {
 	)`
 	_, err := db.Exec(query)
 	return err
+}
+
+// Auth middleware to extract user ID from Bearer token (access token is user ID for demo)
+func authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if !strings.HasPrefix(auth, "Bearer ") {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Missing or invalid Authorization header"))
+			return
+		}
+		token := strings.TrimPrefix(auth, "Bearer ")
+		userID := token // For demo, access token is user ID
+		ctx := context.WithValue(r.Context(), "userID", userID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// Simple admin check: user with ID 1 is admin
+func isAdmin(r *http.Request) bool {
+	return r.Context().Value("userID") == "1"
 }
 
 func main() {
@@ -136,6 +158,120 @@ func main() {
 
 	r.Post("/token", func(w http.ResponseWriter, r *http.Request) {
 		oauthServer.HandleTokenRequest(w, r)
+	})
+
+	// Profile endpoints
+	r.Group(func(r chi.Router) {
+		r.Use(authMiddleware)
+
+		r.Get("/profile", func(w http.ResponseWriter, r *http.Request) {
+			userID := r.Context().Value("userID").(string)
+			var user User
+			err := db.QueryRow("SELECT id, email, name, created_at FROM users WHERE id=$1", userID).Scan(&user.ID, &user.Email, &user.Name, &user.CreatedAt)
+			if err != nil {
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte("User not found"))
+				return
+			}
+			json.NewEncoder(w).Encode(user)
+		})
+
+		r.Put("/profile", func(w http.ResponseWriter, r *http.Request) {
+			userID := r.Context().Value("userID").(string)
+			var req struct {
+				Name string `json:"name"`
+			}
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("Invalid request"))
+				return
+			}
+			_, err := db.Exec("UPDATE users SET name=$1 WHERE id=$2", req.Name, userID)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte("DB error"))
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Profile updated"))
+		})
+
+		// Admin endpoints
+		r.Route("/users", func(r chi.Router) {
+			r.Use(func(next http.Handler) http.Handler {
+				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if !isAdmin(r) {
+						w.WriteHeader(http.StatusForbidden)
+						w.Write([]byte("Admin only"))
+						return
+					}
+					next.ServeHTTP(w, r)
+				})
+			})
+
+			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				rows, err := db.Query("SELECT id, email, name, created_at FROM users")
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte("DB error"))
+					return
+				}
+				defer rows.Close()
+				var users []User
+				for rows.Next() {
+					var u User
+					rows.Scan(&u.ID, &u.Email, &u.Name, &u.CreatedAt)
+					users = append(users, u)
+				}
+				json.NewEncoder(w).Encode(users)
+			})
+
+			r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
+				id := chi.URLParam(r, "id")
+				var user User
+				err := db.QueryRow("SELECT id, email, name, created_at FROM users WHERE id=$1", id).Scan(&user.ID, &user.Email, &user.Name, &user.CreatedAt)
+				if err != nil {
+					w.WriteHeader(http.StatusNotFound)
+					w.Write([]byte("User not found"))
+					return
+				}
+				json.NewEncoder(w).Encode(user)
+			})
+
+			r.Delete("/{id}", func(w http.ResponseWriter, r *http.Request) {
+				id := chi.URLParam(r, "id")
+				_, err := db.Exec("DELETE FROM users WHERE id=$1", id)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte("DB error"))
+					return
+				}
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte("User deleted"))
+			})
+		})
+
+		// Roles endpoint (demo: static list)
+		r.Get("/roles", func(w http.ResponseWriter, r *http.Request) {
+			if !isAdmin(r) {
+				w.WriteHeader(http.StatusForbidden)
+				w.Write([]byte("Admin only"))
+				return
+			}
+			roles := []string{"admin", "user"}
+			json.NewEncoder(w).Encode(roles)
+		})
+
+		// Permissions endpoint (demo: static list)
+		r.Get("/permissions", func(w http.ResponseWriter, r *http.Request) {
+			if !isAdmin(r) {
+				w.WriteHeader(http.StatusForbidden)
+				w.Write([]byte("Admin only"))
+				return
+			}
+			perms := []string{"read", "write", "delete"}
+			json.NewEncoder(w).Encode(perms)
+		})
 	})
 
 	log.Println("User Service running on :4000")
