@@ -13,7 +13,8 @@ export default function Home() {
           <a href="#" className="hover:underline">Business</a>
           <a href="#" className="hover:underline">About</a>
           <a href="#" className="hover:underline">Help</a>
-          <button className="ml-4 bg-white text-black font-semibold px-5 py-2 rounded-full border border-black hover:bg-gray-100 transition">Sign up</button>
+          <a href="/login" className="ml-4 bg-white text-black font-semibold px-5 py-2 rounded-full border border-black hover:bg-gray-100 transition">Login</a>
+          <a href="/signup" className="ml-2 bg-black text-white font-semibold px-5 py-2 rounded-full border border-black hover:bg-gray-900 transition">Sign up</a>
         </div>
       </nav>
 
