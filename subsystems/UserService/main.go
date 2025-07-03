@@ -44,20 +44,27 @@ func ensureUsersTable(db *sql.DB) error {
 	return err
 }
 
-// Auth middleware to extract user ID from Bearer token (access token is user ID for demo)
-func authMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-		if !strings.HasPrefix(auth, "Bearer ") {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Missing or invalid Authorization header"))
-			return
-		}
-		token := strings.TrimPrefix(auth, "Bearer ")
-		userID := token // For demo, access token is user ID
-		ctx := context.WithValue(r.Context(), "userID", userID)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+// Auth middleware to extract user ID from Bearer token using go-oauth2
+func authMiddleware(oauthServer *server.Server) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			auth := r.Header.Get("Authorization")
+			if !strings.HasPrefix(auth, "Bearer ") {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Missing or invalid Authorization header"))
+				return
+			}
+			token := strings.TrimPrefix(auth, "Bearer ")
+			ti, err := oauthServer.Manager.LoadAccessToken(r.Context(), token)
+			if err != nil || ti == nil || ti.GetUserID() == "" {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Invalid or expired token"))
+				return
+			}
+			ctx := context.WithValue(r.Context(), "userID", ti.GetUserID())
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
 
 // Simple admin check: user with ID 1 is admin
@@ -162,7 +169,7 @@ func main() {
 
 	// Profile endpoints
 	r.Group(func(r chi.Router) {
-		r.Use(authMiddleware)
+		r.Use(authMiddleware(oauthServer))
 
 		r.Get("/profile", func(w http.ResponseWriter, r *http.Request) {
 			userID := r.Context().Value("userID").(string)
