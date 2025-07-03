@@ -47,7 +47,7 @@ func dbHealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check the User Service
 	userServiceStatus := "ok"
-	resp, err := http.Get("http://localhost:4000/health")
+	resp, err := http.Get("http://10.0.1.12:4000/health")
 	if err != nil || resp.StatusCode != http.StatusOK {
 		userServiceStatus = "error"
 		if err != nil {
