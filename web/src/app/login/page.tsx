@@ -15,18 +15,22 @@ export default function LoginPage() {
     params.append("password", password);
     params.append("client_id", "truckify-client");
     params.append("client_secret", "truckify-secret");
-    const res = await fetch("http://10.0.1.5:4000/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: params.toString(),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      // Store token in localStorage or cookie
-      localStorage.setItem("access_token", data.access_token);
-      window.location.href = "/";
-    } else {
-      setError("Invalid email or password");
+    try {
+      const res = await fetch("http://10.0.1.5:4000/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // Store token in localStorage or cookie
+        localStorage.setItem("access_token", data.access_token);
+        window.location.href = "/";
+      } else {
+        setError("Invalid email or password");
+      }
+    } catch (err: any) {
+      setError("Network error: " + (err?.message || err));
     }
   }
 
