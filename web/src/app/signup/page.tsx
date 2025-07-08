@@ -12,7 +12,7 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
     setSuccess(false);
-    const res = await fetch("http://10.0.10.38:4000/register", {
+    const res = await fetch("http://10.0.1.5:4000/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),

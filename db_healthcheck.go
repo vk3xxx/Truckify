@@ -26,7 +26,7 @@ func dbHealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	// Check the database
 	connStr := os.Getenv("DB_CONN")
 	if connStr == "" {
-		connStr = "postgres://postgres:1dJiynbnEPM4GTClNEW2tXxF7LtxyUfgnKpPMlQYrQrv89Nek4BLwS5U1bYCRhdk@10.0.1.9:5432/postgres?sslmode=disable&connect_timeout=2"
+		connStr = "postgres://postgres:1dJiynbnEPM4GTClNEW2tXxF7LtxyUfgnKpPMlQYrQrv89Nek4BLwS5U1bYCRhdk@10.0.1.5:5432/postgres?sslmode=disable&connect_timeout=2"
 	}
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {

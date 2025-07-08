@@ -75,7 +75,7 @@ func isAdmin(r *http.Request) bool {
 func main() {
 	dbConnStr := os.Getenv("DB_CONN")
 	if dbConnStr == "" {
-		dbConnStr = "postgres://postgres:1dJiynbnEPM4GTClNEW2tXxF7LtxyUfgnKpPMlQYrQrv89Nek4BLwS5U1bYCRhdk@10.0.1.9:5432/postgres?sslmode=disable&connect_timeout=2"
+		dbConnStr = "postgres://postgres:1dJiynbnEPM4GTClNEW2tXxF7LtxyUfgnKpPMlQYrQrv89Nek4BLwS5U1bYCRhdk@10.0.1.5:5432/postgres?sslmode=disable&connect_timeout=2"
 	}
 	db, err := sql.Open("postgres", dbConnStr)
 	if err != nil {
