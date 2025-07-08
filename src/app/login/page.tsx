@@ -1,6 +1,18 @@
 import React from "react";
 import { FaGoogle, FaMicrosoft, FaGithub, FaApple, FaKey } from "react-icons/fa";
 import { useState } from "react";
+import dynamic from "next/dynamic";
+
+// Hanko web component loader (client-side only)
+const HankoAuth = dynamic(
+  async () => {
+    const { Hanko } = await import("@teamhanko/hanko-elements");
+    return (props: any) => <hanko-auth {...props} />;
+  },
+  { ssr: false }
+);
+
+const hankoApi = "https://passkeys.hanko.io/18259e54-a8e4-4682-85c5-9843f66d1fa0"; // TODO: Replace with your Hanko project URL
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -53,7 +65,10 @@ export default function LoginPage() {
           <button className="flex items-center justify-center gap-2 border rounded px-4 py-2 hover:bg-gray-50 transition"><FaMicrosoft className="text-lg" /> Sign in with Microsoft</button>
           <button className="flex items-center justify-center gap-2 border rounded px-4 py-2 hover:bg-gray-50 transition"><FaGithub className="text-lg" /> Sign in with GitHub</button>
           <button className="flex items-center justify-center gap-2 border rounded px-4 py-2 hover:bg-gray-50 transition"><FaApple className="text-lg" /> Sign in with Apple</button>
-          <button className="flex items-center justify-center gap-2 border rounded px-4 py-2 hover:bg-gray-50 transition"><FaKey className="text-lg" /> Sign in with a passkey</button>
+          {/* Hanko Passkey Auth */}
+          <div className="flex items-center justify-center mt-2">
+            <HankoAuth api={hankoApi} />
+          </div>
         </div>
         <div className="text-center text-sm text-gray-500 mt-4">
           <span className="font-semibold">First time?</span> Learn more at <a href="https://tailscale.com" className="underline">tailscale.com</a>.
