@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -21,11 +20,12 @@ import (
 	"github.com/go-oauth2/oauth2/v4/models"
 	"github.com/go-oauth2/oauth2/v4/server"
 	"github.com/go-oauth2/oauth2/v4/store"
+	"github.com/google/uuid"
 )
 
 // User represents a user in the system
 type User struct {
-	ID           int
+	ID           string
 	Email        string
 	PasswordHash string
 	Name         string
@@ -34,7 +34,7 @@ type User struct {
 
 func ensureUsersTable(db *sql.DB) error {
 	query := `CREATE TABLE IF NOT EXISTS users (
-		id SERIAL PRIMARY KEY,
+		id VARCHAR(255) PRIMARY KEY,
 		email VARCHAR(255) UNIQUE NOT NULL,
 		password_hash VARCHAR(255) NOT NULL,
 		name VARCHAR(255),
@@ -111,7 +111,7 @@ func main() {
 	oauthServer.SetClientInfoHandler(server.ClientFormHandler)
 
 	oauthServer.SetPasswordAuthorizationHandler(func(ctx context.Context, clientID, username, password string) (string, error) {
-		var id int
+		var id string
 		var hash string
 		row := db.QueryRowContext(ctx, "SELECT id, password_hash FROM users WHERE email=$1", username)
 		err := row.Scan(&id, &hash)
@@ -121,7 +121,7 @@ func main() {
 		if bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) != nil {
 			return "", errors.ErrInvalidGrant
 		}
-		return fmt.Sprintf("%d", id), nil
+		return id, nil
 	})
 
 	r := chi.NewRouter()
@@ -153,7 +153,8 @@ func main() {
 			w.Write([]byte("Error hashing password"))
 			return
 		}
-		_, err = db.Exec("INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3)", req.Email, string(hash), req.Name)
+		id := uuid.NewString()
+		_, err = db.Exec("INSERT INTO users (id, email, password_hash, name) VALUES ($1, $2, $3, $4)", id, req.Email, string(hash), req.Name)
 		if err != nil {
 			w.WriteHeader(http.StatusConflict)
 			w.Write([]byte("User already exists or DB error"))
