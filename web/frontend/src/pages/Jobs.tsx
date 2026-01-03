@@ -161,11 +161,11 @@ export default function Jobs() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">{isDriver ? 'Available Jobs' : 'Your Shipments'}</h1>
-          <p className="text-gray-400 mt-2">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{isDriver ? 'Available Jobs' : 'Your Shipments'}</h1>
+          <p className="text-gray-400 mt-2 text-base">
             {filteredJobs.length} job{filteredJobs.length !== 1 ? 's' : ''} found
           </p>
         </div>
@@ -178,35 +178,46 @@ export default function Jobs() {
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="card mb-6">
+      <div className="card mb-6 border-dark-700/50">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Search className="h-5 w-5 text-gray-500" />
+            </div>
             <input
               type="text"
               placeholder="Search cities, states, cargo type, or job ID..."
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="input-field pl-11"
+              className="input-field"
+              style={{ paddingLeft: '3rem' }}
             />
           </div>
           <div className="flex gap-3">
             {isDriver && (
               <button
                 onClick={() => setShowMyJobs(!showMyJobs)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${showMyJobs ? 'bg-primary-500 text-white' : 'bg-dark-700 text-gray-300 hover:bg-dark-600'}`}
+                className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all whitespace-nowrap ${
+                  showMyJobs 
+                    ? 'bg-primary-500 text-white shadow-sm shadow-primary-500/30' 
+                    : 'bg-dark-700 text-gray-300 hover:bg-dark-600 border border-dark-600'
+                }`}
               >
                 My Jobs
               </button>
             )}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${showFilters || activeFilterCount > 0 ? 'bg-primary-500 text-white' : 'bg-dark-700 text-gray-300 hover:bg-dark-600'}`}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 ${
+                showFilters || activeFilterCount > 0 
+                  ? 'bg-primary-500 text-white shadow-sm shadow-primary-500/30' 
+                  : 'bg-dark-700 text-gray-300 hover:bg-dark-600 border border-dark-600'
+              }`}
             >
               <Filter className="h-4 w-4" />
               Filters
               {activeFilterCount > 0 && (
-                <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">{activeFilterCount}</span>
+                <span className="bg-white/25 px-2 py-0.5 rounded-full text-xs font-semibold">{activeFilterCount}</span>
               )}
               <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
             </button>
@@ -303,19 +314,19 @@ export default function Jobs() {
       </div>
 
       {/* Jobs List */}
-      <div className="space-y-5">
+      <div className="space-y-4">
         {filteredJobs.map((job) => (
-          <div key={job.id} className="card hover:border-primary-500/50 transition-all cursor-pointer">
+          <div key={job.id} className="card hover:border-primary-500/50 transition-all cursor-pointer border-dark-700/50">
             <div className="flex flex-col xl:flex-row xl:items-center gap-6">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-sm text-gray-400 font-medium">{job.id.slice(0, 8)}</span>
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                    job.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                    job.status === 'assigned' ? 'bg-blue-500/20 text-blue-400' :
-                    job.status === 'in_transit' ? 'bg-primary-500/20 text-primary-500' :
-                    job.status === 'delivered' ? 'bg-green-500/20 text-green-400' :
-                    'bg-red-500/20 text-red-400'
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="text-xs text-gray-500 font-mono font-medium">{job.id.slice(0, 8)}</span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+                    job.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                    job.status === 'assigned' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                    job.status === 'in_transit' ? 'bg-primary-500/20 text-primary-400 border-primary-500/30' :
+                    job.status === 'delivered' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                    'bg-red-500/20 text-red-400 border-red-500/30'
                   }`}>
                     {job.status.replace('_', ' ')}
                   </span>
@@ -323,59 +334,59 @@ export default function Jobs() {
                 <div className="flex items-center gap-4 sm:gap-6">
                   <div className="shrink-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-primary-500 rounded-full shrink-0" />
-                      <span className="font-medium">{job.pickup.city}, {job.pickup.state}</span>
+                      <div className="w-3 h-3 bg-primary-500 rounded-full shrink-0 shadow-sm shadow-primary-500/50" />
+                      <span className="font-semibold text-white">{job.pickup.city}, {job.pickup.state}</span>
                     </div>
-                    <div className="text-sm text-gray-400 ml-6 mt-1">{new Date(job.pickup_date).toLocaleDateString()}</div>
+                    <div className="text-sm text-gray-400 ml-6 mt-1.5">{new Date(job.pickup_date).toLocaleDateString()}</div>
                   </div>
-                  <div className="flex-1 border-t border-dashed border-dark-500 relative min-w-[60px] hidden sm:block">
+                  <div className="flex-1 border-t border-dashed border-dark-600 relative min-w-[60px] hidden sm:block">
                     {job.distance && (
-                      <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-dark-800 px-3 text-sm text-gray-400 whitespace-nowrap">
+                      <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-dark-800 px-3 text-xs text-gray-500 whitespace-nowrap font-medium">
                         {job.distance} km
                       </span>
                     )}
                   </div>
                   <div className="shrink-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 border-2 border-primary-500 rounded-full shrink-0" />
-                      <span className="font-medium">{job.delivery.city}, {job.delivery.state}</span>
+                      <div className="w-3 h-3 border-2 border-gray-400 rounded-full shrink-0" />
+                      <span className="font-semibold text-white">{job.delivery.city}, {job.delivery.state}</span>
                     </div>
-                    <div className="text-sm text-gray-400 ml-6 mt-1">{new Date(job.delivery_date).toLocaleDateString()}</div>
+                    <div className="text-sm text-gray-400 ml-6 mt-1.5">{new Date(job.delivery_date).toLocaleDateString()}</div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 xl:gap-6 text-sm border-t xl:border-t-0 xl:border-l border-dark-700 pt-5 xl:pt-0 xl:pl-6">
-                <div className="flex items-center gap-2 bg-dark-700 px-3 py-2 rounded-lg">
+              <div className="flex flex-wrap items-center gap-3 xl:gap-4 text-sm border-t xl:border-t-0 xl:border-l border-dark-700/50 pt-5 xl:pt-0 xl:pl-6">
+                <div className="flex items-center gap-2 bg-dark-700/50 px-3 py-2 rounded-lg border border-dark-600/50">
                   <Truck className="h-4 w-4 text-gray-400" />
-                  <span>{job.vehicle_type.replace('_', ' ')}</span>
+                  <span className="text-gray-300 capitalize">{job.vehicle_type.replace('_', ' ')}</span>
                 </div>
-                <div className="flex items-center gap-2 bg-dark-700 px-3 py-2 rounded-lg">
+                <div className="flex items-center gap-2 bg-dark-700/50 px-3 py-2 rounded-lg border border-dark-600/50">
                   <MapPin className="h-4 w-4 text-gray-400" />
-                  <span>{job.weight.toLocaleString()} kg</span>
+                  <span className="text-gray-300">{job.weight.toLocaleString()} kg</span>
                 </div>
-                <div className="flex items-center gap-1 text-primary-500 font-bold text-xl">
+                <div className="flex items-center gap-1 text-primary-400 font-bold text-xl">
                   <DollarSign className="h-5 w-5" />
                   <span>{job.price.toLocaleString()}</span>
                 </div>
               </div>
 
-              <div className="shrink-0 flex gap-2">
+              <div className="shrink-0 flex gap-2 xl:flex-col">
                 {isDriver && job.status === 'pending' && (
                   <>
-                    <button onClick={() => setBidJob(job)} className="btn-secondary w-full xl:w-auto">
-                      <Gavel className="h-4 w-4 mr-1" />
+                    <button onClick={() => setBidJob(job)} className="btn-secondary w-full xl:w-auto text-sm">
+                      <Gavel className="h-4 w-4 mr-1.5" />
                       Bid
                     </button>
-                    <button onClick={() => handleBookJob(job.id)} className="btn-primary w-full xl:w-auto">
+                    <button onClick={() => handleBookJob(job.id)} className="btn-primary w-full xl:w-auto text-sm">
                       Book Now
                     </button>
                   </>
                 )}
                 {(!isDriver || job.status !== 'pending') && (
-                  <button onClick={() => setSelectedJob(job)} className="btn-secondary w-full xl:w-auto">
+                  <button onClick={() => setSelectedJob(job)} className="btn-secondary w-full xl:w-auto text-sm">
                     View Details
-                    <ChevronRight className="h-5 w-5 ml-1" />
+                    <ChevronRight className="h-4 w-4 ml-1.5" />
                   </button>
                 )}
               </div>
@@ -386,11 +397,11 @@ export default function Jobs() {
 
       {filteredJobs.length === 0 && (
         <div className="text-center py-16">
-          <div className="w-20 h-20 bg-dark-800 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-dark-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-dark-700">
             <Truck className="h-10 w-10 text-gray-600" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-300">No jobs found</h3>
-          <p className="text-gray-500 mt-2">
+          <h3 className="text-xl font-semibold text-white mb-2">No jobs found</h3>
+          <p className="text-gray-400 text-base">
             {isShipper ? 'Create your first shipment to get started' : 'Check back later for new opportunities'}
           </p>
         </div>

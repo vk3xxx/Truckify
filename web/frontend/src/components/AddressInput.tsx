@@ -115,18 +115,21 @@ export default function AddressInput({ value, onChange, label = 'Address', requi
       {!showManual ? (
         <>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Search className="h-5 w-5 text-gray-500" />
+            </div>
             <input
               type="text"
               value={query}
               onChange={handleInputChange}
               onFocus={() => query.length >= 3 && setShowDropdown(true)}
               placeholder="Start typing an address..."
-              className="input-field pl-11 pr-10"
+              className="input-field"
+              style={{ paddingLeft: '3rem', paddingRight: '3rem' }}
               required={required && !value?.street}
             />
             {query && (
-              <button type="button" onClick={clearAddress} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+              <button type="button" onClick={clearAddress} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
                 <X className="h-5 w-5" />
               </button>
             )}

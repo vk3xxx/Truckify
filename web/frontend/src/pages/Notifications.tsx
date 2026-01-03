@@ -68,11 +68,11 @@ export default function Notifications() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold">Notifications</h1>
-          {unreadCount > 0 && <p className="text-sm text-gray-400 mt-1">{unreadCount} unread</p>}
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Notifications</h1>
+          {unreadCount > 0 && <p className="text-sm text-gray-400 mt-2">{unreadCount} unread</p>}
         </div>
       </div>
 
@@ -85,7 +85,7 @@ export default function Notifications() {
         ) : notifications.map(notification => (
           <div
             key={notification.id}
-            className={`card flex items-start gap-4 ${!notification.read ? 'border-primary-500/50 bg-primary-500/5' : ''}`}
+            className={`card flex items-start gap-4 border-dark-700/50 ${!notification.read ? 'border-primary-500/30 bg-primary-500/5' : ''}`}
           >
             <div className={`p-2 rounded-lg ${!notification.read ? 'bg-primary-500/20 text-primary-400' : 'bg-dark-700 text-gray-400'}`}>
               {getIcon(notification.type)}

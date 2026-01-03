@@ -149,8 +149,8 @@ export default function Profile() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-8 sm:mb-10">Profile Settings</h1>
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-10 tracking-tight">Profile Settings</h1>
 
       {message.text && (
         <div className={`mb-8 p-4 rounded-xl ${message.type === 'success' ? 'bg-green-500/10 border border-green-500/50 text-green-400' : 'bg-red-500/10 border border-red-500/50 text-red-400'}`}>

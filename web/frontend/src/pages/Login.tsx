@@ -94,31 +94,34 @@ export default function Login() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <Link to="/" className="inline-flex items-center space-x-2">
-            <Truck className="h-10 w-10 text-primary-500" />
-            <span className="text-2xl font-bold">Truckify</span>
+          <Link to="/" className="inline-flex items-center space-x-2.5 group">
+            <Truck className="h-9 w-9 text-primary-500 transition-transform group-hover:scale-105" />
+            <span className="text-2xl font-bold text-white">Truckify</span>
           </Link>
-          <h1 className="mt-8 text-3xl font-bold">Welcome back</h1>
-          <p className="mt-3 text-gray-400">Sign in to your account</p>
+          <h1 className="mt-10 text-4xl font-bold tracking-tight">Welcome back</h1>
+          <p className="mt-3 text-gray-400 text-base">Sign in to your account</p>
         </div>
 
         <div className="card">
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm">
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-500" />
+                </div>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input-field pl-11"
+                  className="input-field"
+                  style={{ paddingLeft: '3rem' }}
                   placeholder="you@example.com"
                   required
                 />
@@ -128,19 +131,22 @@ export default function Login() {
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-500" />
+                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-11 pr-11"
+                  className="input-field"
+                  style={{ paddingLeft: '3rem', paddingRight: '3rem' }}
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 p-1"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -148,27 +154,28 @@ export default function Login() {
             </div>
 
             <div className="flex items-center justify-between text-sm pt-1">
-              <label className="flex items-center cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500" />
-                <span className="ml-2 text-gray-400">Remember me</span>
+              <label className="flex items-center cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 rounded bg-dark-700 text-primary-500 cursor-pointer"
+                  style={{ border: '1px solid #404040' }}
+                />
+                <span className="ml-2.5 text-gray-400 group-hover:text-gray-300">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="text-primary-500 hover:text-primary-400 font-medium">
+              <Link to="/forgot-password" className="text-primary-500 hover:text-primary-400 font-medium transition-colors">
                 Forgot password?
               </Link>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
+            <button type="submit" disabled={loading} className="btn-primary w-full">
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-dark-600" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-dark-800 text-gray-400">Or continue with</span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '2rem 0' }}>
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#404040' }}></div>
+            <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Or continue with</span>
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#404040' }}></div>
           </div>
 
           <button
@@ -182,7 +189,7 @@ export default function Login() {
 
           <p className="mt-8 text-center text-gray-400">
             Don't have an account?{' '}
-            <Link to="/register" className="text-primary-500 hover:text-primary-400 font-medium">
+            <Link to="/register" className="text-primary-500 hover:text-primary-400 font-medium transition-colors">
               Sign up
             </Link>
           </p>
