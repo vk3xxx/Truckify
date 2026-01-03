@@ -1,0 +1,582 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: truckify-postgres
+    environment:
+      POSTGRES_USER: truckify
+      POSTGRES_PASSWORD: truckify_password
+      POSTGRES_DB: truckify
+      POSTGRES_MULTIPLE_DATABASES: auth,user,shipper,driver,fleet,job,payment,rating,compliance
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts/postgres-init.sh:/docker-entrypoint-initdb.d/postgres-init.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U truckify"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - truckify-network
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: truckify-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: truckify
+      MONGO_INITDB_ROOT_PASSWORD: truckify_password
+      MONGO_INITDB_DATABASE: truckify
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - truckify-network
+
+  # Redis Cache
+  redis:
+    image: redis:7.2-alpine
+    container_name: truckify-redis
+    command: redis-server --requirepass truckify_password --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - truckify-network
+
+  # NATS Message Broker
+  nats:
+    image: nats:2.10-alpine
+    container_name: truckify-nats
+    command: "--cluster_name truckify --http_port 8222"
+    ports:
+      - "4222:4222"  # Client connections
+      - "8222:8222"  # HTTP monitoring
+      - "6222:6222"  # Cluster connections
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - truckify-network
+
+  # Consul Service Discovery
+  consul:
+    image: hashicorp/consul:1.18
+    container_name: truckify-consul
+    command: agent -server -ui -bootstrap-expect=1 -client=0.0.0.0
+    ports:
+      - "8500:8500"  # HTTP API & UI
+      - "8600:8600"  # DNS
+    volumes:
+      - consul_data:/consul/data
+    healthcheck:
+      test: ["CMD", "consul", "members"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - truckify-network
+
+  # Prometheus Monitoring
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: truckify-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - truckify-network
+
+  # Grafana Dashboards
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: truckify-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - truckify-network
+
+  # Elasticsearch for Logging
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
+    container_name: truckify-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - truckify-network
+
+  # Kibana for Log Visualization
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.1
+    container_name: truckify-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - truckify-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ../../
+      dockerfile: api-gateway/Dockerfile
+    container_name: truckify-api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - LOG_LEVEL=info
+      - JWT_SECRET=your-secret-key-change-in-production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=truckify_password
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    depends_on:
+      - redis
+      - consul
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ../../
+      dockerfile: services/auth/Dockerfile
+    container_name: truckify-auth-service
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - LOG_LEVEL=info
+      - JWT_SECRET=your-secret-key-change-in-production
+      - JWT_ACCESS_TTL=15m
+      - JWT_REFRESH_TTL=7d
+      - WEBAUTHN_RP_ORIGIN=http://localhost:5173
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=auth
+      - DB_SSLMODE=disable
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=truckify_password
+      - NATS_URL=nats://nats:4222
+      - CONSUL_HOST=consul
+      - CONSUL_PORT=8500
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      consul:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # User Service
+  user-service:
+    build:
+      context: ../../
+      dockerfile: services/user/Dockerfile
+    container_name: truckify-user-service
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=user
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Driver Service
+  driver-service:
+    build:
+      context: ../../
+      dockerfile: services/driver/Dockerfile
+    container_name: truckify-driver-service
+    ports:
+      - "8004:8004"
+    environment:
+      - PORT=8004
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=driver
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Fleet Service
+  fleet-service:
+    build:
+      context: ../../
+      dockerfile: services/fleet/Dockerfile
+    container_name: truckify-fleet-service
+    ports:
+      - "8005:8005"
+    environment:
+      - PORT=8005
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=fleet
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Job Service
+  job-service:
+    build:
+      context: ../../
+      dockerfile: services/job/Dockerfile
+    container_name: truckify-job-service
+    ports:
+      - "8006:8006"
+    environment:
+      - PORT=8006
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=job
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Matching Service
+  matching-service:
+    build:
+      context: ../../
+      dockerfile: services/matching/Dockerfile
+    container_name: truckify-matching-service
+    ports:
+      - "8007:8007"
+    environment:
+      - PORT=8007
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=matching
+      - DB_SSLMODE=disable
+      - DRIVER_SERVICE_URL=http://driver-service:8004
+      - JOB_SERVICE_URL=http://job-service:8006
+    depends_on:
+      postgres:
+        condition: service_healthy
+      driver-service:
+        condition: service_started
+      job-service:
+        condition: service_started
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Bidding Service
+  bidding-service:
+    build:
+      context: ../../
+      dockerfile: services/bidding/Dockerfile
+    container_name: truckify-bidding-service
+    ports:
+      - "8008:8008"
+    environment:
+      - PORT=8008
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=bidding
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Route Service
+  route-service:
+    build:
+      context: ../../
+      dockerfile: services/route/Dockerfile
+    container_name: truckify-route-service
+    ports:
+      - "8009:8009"
+    environment:
+      - PORT=8009
+      - LOG_LEVEL=info
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Backhaul Service
+  backhaul-service:
+    build:
+      context: ../../
+      dockerfile: services/backhaul/Dockerfile
+    container_name: truckify-backhaul-service
+    ports:
+      - "8010:8010"
+    environment:
+      - PORT=8010
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=backhaul
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Tracking Service
+  tracking-service:
+    build:
+      context: ../../
+      dockerfile: services/tracking/Dockerfile
+    container_name: truckify-tracking-service
+    ports:
+      - "8011:8011"
+    environment:
+      - PORT=8011
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=tracking
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Payment Service
+  payment-service:
+    build:
+      context: ../../
+      dockerfile: services/payment/Dockerfile
+    container_name: truckify-payment-service
+    ports:
+      - "8012:8012"
+    environment:
+      - PORT=8012
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=payment
+      - DB_SSLMODE=disable
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_placeholder}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_placeholder}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Rating Service
+  rating-service:
+    build:
+      context: ../../
+      dockerfile: services/rating/Dockerfile
+    container_name: truckify-rating-service
+    ports:
+      - "8013:8013"
+    environment:
+      - PORT=8013
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=rating
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ../../
+      dockerfile: services/notification/Dockerfile
+    container_name: truckify-notification-service
+    ports:
+      - "8014:8014"
+    environment:
+      - PORT=8014
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=notification
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Analytics Service
+  analytics-service:
+    build:
+      context: ../../
+      dockerfile: services/analytics/Dockerfile
+    container_name: truckify-analytics-service
+    ports:
+      - "8015:8015"
+    environment:
+      - PORT=8015
+      - LOG_LEVEL=info
+      - AUTH_SERVICE_URL=http://auth-service:8001
+      - JOB_SERVICE_URL=http://job-service:8006
+      - DRIVER_SERVICE_URL=http://driver-service:8004
+      - PAYMENT_SERVICE_URL=http://payment-service:8012
+      - FLEET_SERVICE_URL=http://fleet-service:8005
+      - RATING_SERVICE_URL=http://rating-service:8013
+    depends_on:
+      - auth-service
+      - job-service
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  # Compliance/Insurance Service
+  compliance-service:
+    build:
+      context: ../../
+      dockerfile: services/compliance/Dockerfile
+    container_name: truckify-compliance-service
+    ports:
+      - "8016:8016"
+    environment:
+      - PORT=8016
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=compliance
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
+  consul_data:
+  prometheus_data:
+  grafana_data:
+  elasticsearch_data:
+
+networks:
+  truckify-network:
+    driver: bridge

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go work init:*)",
+      "Bash(go work use:*)",
+      "Bash(go get:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(go work sync:*)",
+      "Bash(go test:*)",
+      "Bash(go build:*)"
+    ]
+  }
+}

@@ -1,0 +1,196 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: truckify
+          POSTGRES_PASSWORD: truckify_password
+          POSTGRES_DB: truckify_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      mongodb:
+        image: mongo:7.0
+        env:
+          MONGO_INITDB_ROOT_USERNAME: truckify
+          MONGO_INITDB_ROOT_PASSWORD: truckify_password
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+        cache: true
+
+    - name: Install dependencies
+      run: |
+        cd shared && go mod download
+        cd ../api-gateway && go mod download
+        cd ../services/auth && go mod download
+
+    - name: Run tests with coverage
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USER: truckify
+        DB_PASSWORD: truckify_password
+        DB_NAME: truckify_test
+        DB_SSLMODE: disable
+        REDIS_HOST: localhost
+        REDIS_PORT: 6379
+        REDIS_PASSWORD: ""
+        MONGO_URI: mongodb://truckify:truckify_password@localhost:27017
+        JWT_SECRET: test-secret-key-for-ci
+      run: |
+        go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.out
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: Check coverage threshold
+      run: |
+        coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        threshold=60
+        if (( $(echo "$coverage < $threshold" | bc -l) )); then
+          echo "Coverage $coverage% is below threshold $threshold%"
+          exit 1
+        fi
+        echo "Coverage $coverage% meets threshold $threshold%"
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+        cache: true
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v4
+      with:
+        version: latest
+        args: --timeout=5m
+        skip-cache: false
+        skip-build-cache: false
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+        cache: true
+
+    - name: Build API Gateway
+      run: |
+        cd api-gateway
+        go build -v ./cmd/server
+
+    - name: Build Auth Service
+      run: |
+        cd services/auth
+        go build -v ./cmd/server
+
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build API Gateway Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./api-gateway/Dockerfile
+        push: false
+        tags: truckify/api-gateway:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build Auth Service Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./services/auth/Dockerfile
+        push: false
+        tags: truckify/auth-service:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Gosec Security Scanner
+      uses: securego/gosec@master
+      with:
+        args: '-no-fail -fmt json -out results.json ./...'
+
+    - name: Upload results
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-scan-results
+        path: results.json

@@ -1,0 +1,18 @@
+go 1.25.5
+
+use (
+	./api-gateway
+	./services/auth
+	./services/backhaul
+	./services/bidding
+	./services/driver
+	./services/job
+	./services/matching
+	./services/notification
+	./services/payment
+	./services/rating
+	./services/route
+	./services/tracking
+	./services/user
+	./shared
+)

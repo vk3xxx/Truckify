@@ -1,0 +1,73 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+*.test
+*.out
+
+# Go workspace file
+go.work.sum
+
+# Dependency directories
+vendor/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage.out
+coverage.html
+*.coverprofile
+
+# Docker volumes (keep docker-compose.yml but ignore data)
+**/data/
+
+# Compiled binaries
+api-gateway/bin/
+services/*/bin/
+
+# Temporary files
+tmp/
+temp/
+
+# Build artifacts
+*.tar
+*.zip
+*.gz
+
+# OS specific
+Thumbs.db
+.DS_Store
+
+# Kubernetes secrets
+k8s/secrets/
+
+# Certificates
+*.pem
+*.key
+*.crt
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Build cache
+.cache/
