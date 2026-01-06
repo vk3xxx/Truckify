@@ -98,6 +98,10 @@ migrate-up: ## Run database migrations
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d job < services/job/migrations/001_create_jobs.sql
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d matching < services/matching/migrations/001_create_matches.sql
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d bidding < services/bidding/migrations/001_create_bids.sql
+	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d tracking < services/tracking/migrations/001_create_tracking.sql
+	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d payment < services/payment/migrations/001_create_payments.sql
+	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d payment < services/payment/migrations/002_pricing.sql
+	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d payment < services/payment/migrations/003_stripe_subscription.sql
 	@echo "Migrations completed!"
 
 migrate-down: ## Rollback database migrations
@@ -109,6 +113,8 @@ migrate-down: ## Rollback database migrations
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d job -c "DROP TABLE IF EXISTS jobs CASCADE;"
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d matching -c "DROP TABLE IF EXISTS matches CASCADE;"
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d bidding -c "DROP TABLE IF EXISTS bids CASCADE;"
+	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d tracking -c "DROP TABLE IF EXISTS tracking_locations CASCADE; DROP TABLE IF EXISTS stops CASCADE; DROP TABLE IF EXISTS trips CASCADE;"
+	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d payment -c "DROP TABLE IF EXISTS stripe_subscriptions CASCADE; DROP TABLE IF EXISTS commission_tiers CASCADE; DROP TABLE IF EXISTS subscription_tiers CASCADE; DROP TABLE IF EXISTS transactions CASCADE; DROP TABLE IF EXISTS invoices CASCADE; DROP TABLE IF EXISTS platform_settings CASCADE;"
 	@echo "Rollback completed!"
 
 db-shell: ## Open PostgreSQL shell
