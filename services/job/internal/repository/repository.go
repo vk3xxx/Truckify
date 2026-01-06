@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -87,29 +88,29 @@ func (r *Repository) List(filter model.JobFilter) ([]*model.Job, error) {
 	argNum := 1
 
 	if filter.Status != "" {
-		query += " AND status = $" + string(rune('0'+argNum))
+		query += " AND status = $" + strconv.Itoa(argNum)
 		args = append(args, filter.Status)
 		argNum++
 	}
 	if filter.VehicleType != "" {
-		query += " AND vehicle_type = $" + string(rune('0'+argNum))
+		query += " AND vehicle_type = $" + strconv.Itoa(argNum)
 		args = append(args, filter.VehicleType)
 		argNum++
 	}
 	if filter.ShipperID != uuid.Nil {
-		query += " AND shipper_id = $" + string(rune('0'+argNum))
+		query += " AND shipper_id = $" + strconv.Itoa(argNum)
 		args = append(args, filter.ShipperID)
 		argNum++
 	}
 	if filter.DriverID != uuid.Nil {
-		query += " AND driver_id = $" + string(rune('0'+argNum))
+		query += " AND driver_id = $" + strconv.Itoa(argNum)
 		args = append(args, filter.DriverID)
 		argNum++
 	}
 
 	query += " ORDER BY created_at DESC"
 	if filter.Limit > 0 {
-		query += " LIMIT " + string(rune('0'+filter.Limit))
+		query += " LIMIT " + strconv.Itoa(filter.Limit)
 	} else {
 		query += " LIMIT 50"
 	}
