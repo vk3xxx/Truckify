@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -217,7 +218,7 @@ func (r *Repository) GetAvailableDrivers(vehicleType string, limit int) ([]*mode
 		query += " AND v.type = $1"
 		args = append(args, vehicleType)
 	}
-	query += " ORDER BY d.rating DESC LIMIT $" + string(rune('0'+len(args)+1))
+	query += " ORDER BY d.rating DESC LIMIT $" + strconv.Itoa(len(args)+1)
 	args = append(args, limit)
 
 	rows, err := r.db.Query(query, args...)
