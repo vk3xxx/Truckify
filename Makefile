@@ -92,6 +92,7 @@ migrate-up: ## Run database migrations
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d $(AUTH_DB) < services/auth/migrations/001_create_users_table.sql
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d $(AUTH_DB) < services/auth/migrations/002_add_passkey_support.sql
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d user < services/user/migrations/001_create_user_profiles.sql
+	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d user < services/user/migrations/002_documents.sql
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d driver < services/driver/migrations/001_create_drivers.sql
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d job < services/job/migrations/001_create_jobs.sql
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d matching < services/matching/migrations/001_create_matches.sql
@@ -101,7 +102,7 @@ migrate-up: ## Run database migrations
 migrate-down: ## Rollback database migrations
 	@echo "Rolling back migrations..."
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d $(AUTH_DB) -c "DROP TABLE IF EXISTS webauthn_challenges CASCADE; DROP TABLE IF EXISTS passkey_credentials CASCADE; DROP TABLE IF EXISTS users CASCADE; DROP TYPE IF EXISTS user_type; DROP TYPE IF EXISTS user_status;"
-	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d user -c "DROP TABLE IF EXISTS user_profiles CASCADE;"
+	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d user -c "DROP TABLE IF EXISTS documents CASCADE; DROP TABLE IF EXISTS user_profiles CASCADE;"
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d driver -c "DROP TABLE IF EXISTS vehicles CASCADE; DROP TABLE IF EXISTS drivers CASCADE;"
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d job -c "DROP TABLE IF EXISTS jobs CASCADE;"
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d matching -c "DROP TABLE IF EXISTS matches CASCADE;"

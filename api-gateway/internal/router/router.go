@@ -77,9 +77,12 @@ func (router *Router) setupProtectedRoutes(api *mux.Router) {
 	protected := api.PathPrefix("").Subrouter()
 	protected.Use(router.authMiddleware.Authenticate)
 
-	// User service routes
-	protected.PathPrefix("/users").Handler(
-		http.StripPrefix("/api/v1", router.createProxy("http://user-service:8002")),
+	// User service routes (profile and documents)
+	protected.PathPrefix("/profile").Handler(
+		http.StripPrefix("/api/v1/profile", router.createProxy("http://user-service:8002/profile")),
+	)
+	protected.PathPrefix("/documents").Handler(
+		http.StripPrefix("/api/v1/documents", router.createProxy("http://user-service:8002/documents")),
 	)
 
 	// Shipper service routes
