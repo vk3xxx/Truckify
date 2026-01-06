@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -164,39 +165,18 @@ func (d *driverInfo) UnmarshalJSON(data []byte) error {
 func (s *Service) assignDriverToJob(jobID, driverID uuid.UUID) error {
 	url := fmt.Sprintf("%s/jobs/%s/assign", s.jobSvcURL, jobID)
 	body := fmt.Sprintf(`{"driver_id":"%s"}`, driverID)
-	req, _ := http.NewRequest("POST", url, nil)
-	req.Header.Set("Content-Type", "application/json")
-	req.Body = http.NoBody
-	
+
 	client := &http.Client{}
-	resp, err := client.Post(url, "application/json", stringReader(body))
+	resp, err := client.Post(url, "application/json", bytes.NewBufferString(body))
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("failed to assign driver: status %d", resp.StatusCode)
 	}
 	return nil
-}
-
-func stringReader(s string) *stringReaderImpl {
-	return &stringReaderImpl{s: s, i: 0}
-}
-
-type stringReaderImpl struct {
-	s string
-	i int
-}
-
-func (r *stringReaderImpl) Read(p []byte) (n int, err error) {
-	if r.i >= len(r.s) {
-		return 0, nil
-	}
-	n = copy(p, r.s[r.i:])
-	r.i += n
-	return n, nil
 }
 
 // Haversine formula for distance between two coordinates
