@@ -4,39 +4,47 @@
     "slug": "truckify-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/icon.svg",
     "scheme": "truckify",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "sdkVersion": "54.0.0",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/images/splash.svg",
       "resizeMode": "contain",
-      "backgroundColor": "#1f2937"
+      "backgroundColor": "#111827"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.truckify.mobile",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Truckify needs your location to show nearby jobs and track deliveries.",
-        "NSLocationAlwaysUsageDescription": "Truckify needs your location to track deliveries in the background."
+        "NSLocationAlwaysUsageDescription": "Truckify needs your location to track deliveries in the background.",
+        "NSFaceIDUsageDescription": "Use Face ID to securely log in to Truckify.",
+        "NSCameraUsageDescription": "Take photos for proof of delivery and document uploads.",
+        "NSPhotoLibraryUsageDescription": "Select photos for proof of delivery and document uploads.",
+        "UIBackgroundModes": ["location", "fetch", "remote-notification"]
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1f2937"
+        "foregroundImage": "./assets/images/adaptive-icon.svg",
+        "backgroundColor": "#111827"
       },
       "package": "com.truckify.mobile",
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
-        "ACCESS_BACKGROUND_LOCATION"
+        "ACCESS_BACKGROUND_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT"
       ]
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/images/icon.svg"
     },
     "plugins": [
       "expo-router",
@@ -44,14 +52,35 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Truckify to use your location for tracking deliveries."
+          "locationAlwaysAndWhenInUsePermission": "Allow Truckify to use your location for tracking deliveries.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Truckify to access your photos for document uploads.",
+          "cameraPermission": "Allow Truckify to take photos for proof of delivery."
+        }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
+      ],
+      "expo-task-manager",
       "expo-asset",
       "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
     }
   }
 }

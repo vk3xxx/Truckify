@@ -117,6 +117,19 @@ func (m *MockRepository) DeleteChallenge(ctx context.Context, id uuid.UUID) erro
 	return args.Error(0)
 }
 
+func (m *MockRepository) ListUsers(ctx context.Context) ([]model.User, error) {
+	args := m.Called(ctx)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]model.User), args.Error(1)
+}
+
+func (m *MockRepository) UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) error {
+	args := m.Called(ctx, userID, status)
+	return args.Error(0)
+}
+
 func setupTestService() (*service.Service, *MockRepository) {
 	mockRepo := new(MockRepository)
 	log := logger.New("test", "debug")

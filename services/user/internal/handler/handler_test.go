@@ -51,6 +51,45 @@ func (m *MockService) DeleteProfile(ctx context.Context, userID uuid.UUID) error
 	return args.Error(0)
 }
 
+func (m *MockService) CreateDocument(ctx context.Context, doc *model.Document) error {
+	args := m.Called(ctx, doc)
+	return args.Error(0)
+}
+
+func (m *MockService) GetUserDocuments(ctx context.Context, userID uuid.UUID) ([]model.Document, error) {
+	args := m.Called(ctx, userID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]model.Document), args.Error(1)
+}
+
+func (m *MockService) GetJobDocuments(ctx context.Context, jobID uuid.UUID) ([]model.Document, error) {
+	args := m.Called(ctx, jobID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]model.Document), args.Error(1)
+}
+
+func (m *MockService) GetDocument(ctx context.Context, id uuid.UUID) (*model.Document, error) {
+	args := m.Called(ctx, id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*model.Document), args.Error(1)
+}
+
+func (m *MockService) DeleteDocument(ctx context.Context, id, userID uuid.UUID) error {
+	args := m.Called(ctx, id, userID)
+	return args.Error(0)
+}
+
+func (m *MockService) VerifyDocument(ctx context.Context, id uuid.UUID, status string) error {
+	args := m.Called(ctx, id, status)
+	return args.Error(0)
+}
+
 func setupTestHandler() (*handler.Handler, *MockService) {
 	mockService := new(MockService)
 	log := logger.New("test", "debug")

@@ -56,6 +56,13 @@ func (m *mockService) DeleteJob(id uuid.UUID) error {
 	return m.err
 }
 
+func (m *mockService) UpdateStatus(id uuid.UUID, status string) (*model.Job, error) {
+	if m.err != nil {
+		return nil, m.err
+	}
+	return m.job, nil
+}
+
 func TestJobHealth(t *testing.T) {
 	h := &Handler{svc: &mockService{}, val: nil}
 	req := httptest.NewRequest("GET", "/health", nil)

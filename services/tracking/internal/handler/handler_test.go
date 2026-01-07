@@ -38,6 +38,14 @@ func (m *MockService) GetDriverCurrentLocation(ctx context.Context, driverID uui
 	return args.Get(0).(*model.CurrentLocationResponse), args.Error(1)
 }
 
+func (m *MockService) GetStops(ctx context.Context, jobID uuid.UUID) ([]model.Stop, error) {
+	args := m.Called(ctx, jobID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]model.Stop), args.Error(1)
+}
+
 func TestHandler_UpdateLocation(t *testing.T) {
 	mockService := new(MockService)
 	log := logger.New("test", "info")

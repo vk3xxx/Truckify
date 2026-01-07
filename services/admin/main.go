@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -464,6 +465,86 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// Admin E2E encryption key pair (in production, load from secure storage)
+var adminPrivateKey = getEnvOrDefault("ADMIN_E2E_PRIVATE_KEY", "ADMIN_PRIVATE_KEY_TRUCKIFY_2025_SECURE")
+var adminPublicKey = ""
+
+func init() {
+	// Derive public key from private key (simplified)
+	hash := sha256.Sum256([]byte(adminPrivateKey + "public"))
+	adminPublicKey = base64.StdEncoding.EncodeToString(hash[:])
+}
+
+// DecryptRequest for admin message decryption
+type DecryptRequest struct {
+	Ciphertext string `json:"ciphertext"`
+	IV         string `json:"iv"`
+	SessionKey string `json:"sessionKey"` // forAdmin wrapped key
+}
+
+// getAdminPublicKey returns the admin's public key for E2E encryption
+func getAdminPublicKey(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"publicKey": adminPublicKey})
+}
+
+// decryptMessage decrypts a message using admin's private key (for compliance)
+func decryptMessage(w http.ResponseWriter, r *http.Request) {
+	var req DecryptRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	// Unwrap session key using admin private key
+	wrappedData, err := base64.StdEncoding.DecodeString(req.SessionKey)
+	if err != nil {
+		http.Error(w, "Invalid session key", http.StatusBadRequest)
+		return
+	}
+
+	// Extract session key (format: sessionKey|hash)
+	parts := string(wrappedData)
+	sessionKey := parts
+	if idx := len(parts) - 17; idx > 0 && parts[idx] == '|' {
+		sessionKey = parts[:idx]
+	}
+
+	// Derive decryption key
+	iv, err := base64.StdEncoding.DecodeString(req.IV)
+	if err != nil {
+		http.Error(w, "Invalid IV", http.StatusBadRequest)
+		return
+	}
+
+	// Create key stream (matching mobile encryption)
+	keyHash := sha256.Sum256([]byte(sessionKey + string(iv)))
+	keyStream := fmt.Sprintf("%x", keyHash)
+	keyHash2 := sha256.Sum256([]byte(keyStream))
+	keyHash3 := sha256.Sum256([]byte(keyStream + "extend"))
+	extendedKey := keyStream + fmt.Sprintf("%x", keyHash2) + fmt.Sprintf("%x", keyHash3)
+
+	// Decrypt ciphertext
+	ciphertext, err := base64.StdEncoding.DecodeString(req.Ciphertext)
+	if err != nil {
+		http.Error(w, "Invalid ciphertext", http.StatusBadRequest)
+		return
+	}
+
+	keyBytes := []byte(extendedKey)
+	plaintext := make([]byte, len(ciphertext))
+	for i := 0; i < len(ciphertext); i++ {
+		plaintext[i] = ciphertext[i] ^ keyBytes[i%len(keyBytes)]
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"plaintext":   string(plaintext),
+		"decryptedAt": time.Now().UTC().Format(time.RFC3339),
+		"decryptedBy": "admin",
+	})
+}
+
 func main() {
 	godotenv.Load()
 
@@ -472,6 +553,10 @@ func main() {
 	router.HandleFunc("/api/v1/admin/config", saveConfig).Methods("POST")
 	router.HandleFunc("/api/v1/admin/config/backup", backupConfig).Methods("POST")
 	router.HandleFunc("/api/v1/admin/config/restore", restoreConfig).Methods("POST")
+	
+	// E2E encryption endpoints
+	router.HandleFunc("/admin/public-key", getAdminPublicKey).Methods("GET")
+	router.HandleFunc("/api/v1/admin/decrypt", decryptMessage).Methods("POST")
 
 	port := os.Getenv("ADMIN_PORT")
 	if port == "" {

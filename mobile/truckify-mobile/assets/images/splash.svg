@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1284 2778">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f"/>
+      <stop offset="100%" style="stop-color:#111827"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1284" height="2778" fill="url(#bg)"/>
+  <!-- Truck icon centered -->
+  <g transform="translate(342, 1000)">
+    <!-- Truck body -->
+    <rect x="50" y="150" width="350" height="150" rx="15" fill="#3b82f6"/>
+    <!-- Truck cab -->
+    <path d="M400 150 L400 80 Q400 40 440 40 L520 40 Q560 40 560 80 L560 300 L400 300 Z" fill="#2563eb"/>
+    <!-- Wheels -->
+    <circle cx="130" cy="320" r="50" fill="#1f2937"/>
+    <circle cx="130" cy="320" r="30" fill="#374151"/>
+    <circle cx="300" cy="320" r="50" fill="#1f2937"/>
+    <circle cx="300" cy="320" r="30" fill="#374151"/>
+    <circle cx="500" cy="320" r="50" fill="#1f2937"/>
+    <circle cx="500" cy="320" r="30" fill="#374151"/>
+    <!-- Window -->
+    <rect x="420" y="60" width="110" height="70" rx="8" fill="#60a5fa"/>
+    <!-- Location pin -->
+    <path d="M280 -100 Q280 -140 320 -140 Q360 -140 360 -100 Q360 -60 320 0 Q280 -60 280 -100 Z" fill="#22c55e"/>
+    <circle cx="320" cy="-100" r="18" fill="#111827"/>
+  </g>
+  <!-- App name -->
+  <text x="642" y="1550" font-family="Arial, sans-serif" font-size="100" font-weight="bold" fill="#ffffff" text-anchor="middle">TRUCKIFY</text>
+  <text x="642" y="1630" font-family="Arial, sans-serif" font-size="36" fill="#9ca3af" text-anchor="middle">Freight Made Simple</text>
+  <!-- Loading indicator dots -->
+  <circle cx="582" cy="1750" r="12" fill="#3b82f6" opacity="0.4"/>
+  <circle cx="642" cy="1750" r="12" fill="#3b82f6" opacity="0.7"/>
+  <circle cx="702" cy="1750" r="12" fill="#3b82f6" opacity="1"/>
+</svg>

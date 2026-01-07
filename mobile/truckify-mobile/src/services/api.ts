@@ -71,10 +71,16 @@ class ApiService {
     return this.request<ApiResponse<any>>('/driver/profile');
   }
 
-  async updateLocation(latitude: number, longitude: number) {
+  async updateLocation(latitude: number, longitude: number, speed?: number, heading?: number) {
     return this.request<ApiResponse<any>>('/driver/location', {
       method: 'POST',
-      body: JSON.stringify({ latitude, longitude }),
+      body: JSON.stringify({ 
+        latitude, 
+        longitude,
+        speed: speed || 0,
+        heading: heading || 0,
+        timestamp: new Date().toISOString()
+      }),
     });
   }
 
@@ -84,6 +90,38 @@ class ApiService {
       body: JSON.stringify({ is_available: available }),
     });
   }
+
+  // Push notifications
+  async registerPushToken(token: string, platform: string) {
+    return this.request<ApiResponse<any>>('/notifications/register', {
+      method: 'POST',
+      body: JSON.stringify({ push_token: token, platform }),
+    });
+  }
+
+  // Generic methods
+  async get<T>(endpoint: string) {
+    return this.request<ApiResponse<T>>(endpoint);
+  }
+
+  async delete(endpoint: string) {
+    return this.request<ApiResponse<any>>(endpoint, { method: 'DELETE' });
+  }
+
+  // File upload
+  async upload<T>(endpoint: string, formData: FormData) {
+    const headers: Record<string, string> = {};
+    if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    return response.json() as Promise<ApiResponse<T>>;
+  }
 }
+
 
 export const api = new ApiService();

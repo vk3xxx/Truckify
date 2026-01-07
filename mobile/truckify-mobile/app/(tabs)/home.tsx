@@ -38,7 +38,7 @@ export default function Home() {
         router.push('/(tabs)/tracking');
         break;
       case 'messages':
-        Alert.alert('Messages', 'No new messages');
+        router.push('/(tabs)/messages');
         break;
       case 'earnings':
         Alert.alert('Earnings', 'Total: $4,250\nThis week: $850\nPending: $320');

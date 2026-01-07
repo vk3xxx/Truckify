@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f"/>
+      <stop offset="100%" style="stop-color:#111827"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- Truck body -->
+  <rect x="200" y="450" width="450" height="200" rx="20" fill="#3b82f6"/>
+  <!-- Truck cab -->
+  <path d="M650 450 L650 350 Q650 300 700 300 L800 300 Q850 300 850 350 L850 650 L650 650 Z" fill="#2563eb"/>
+  <!-- Wheels -->
+  <circle cx="320" cy="680" r="70" fill="#1f2937"/>
+  <circle cx="320" cy="680" r="40" fill="#374151"/>
+  <circle cx="520" cy="680" r="70" fill="#1f2937"/>
+  <circle cx="520" cy="680" r="40" fill="#374151"/>
+  <circle cx="780" cy="680" r="70" fill="#1f2937"/>
+  <circle cx="780" cy="680" r="40" fill="#374151"/>
+  <!-- Window -->
+  <rect x="680" y="330" width="140" height="100" rx="10" fill="#60a5fa"/>
+  <!-- Location pin -->
+  <path d="M512 150 Q512 100 562 100 Q612 100 612 150 Q612 200 562 280 Q512 200 512 150 Z" fill="#22c55e"/>
+  <circle cx="562" cy="150" r="25" fill="#111827"/>
+  <!-- Text -->
+  <text x="512" y="850" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#ffffff" text-anchor="middle">TRUCKIFY</text>
+</svg>
