@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Modal, TextInput } from 'react-native';
 import { useState, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { documentService } from '../../src/services/documents';
-import { t } from '../../src/services/i18n';
+import { documentService } from '../src/services/documents';
+import { t } from '../src/services/i18n';
 
 export default function DeliveryComplete() {
   const { jobId } = useLocalSearchParams<{ jobId: string }>();
