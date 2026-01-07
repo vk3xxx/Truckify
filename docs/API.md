@@ -106,6 +106,42 @@ POST /passkey/login/finish
 }
 ```
 
+### Email Verification
+
+```http
+# Verify email (from link in email)
+GET /verify-email?token=<verification_token>
+
+# Resend verification email
+POST /resend-verification
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}
+```
+
+### Password Reset
+
+```http
+# Request password reset
+POST /forgot-password
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}
+
+# Reset password (with token from email)
+POST /reset-password
+Content-Type: application/json
+
+{
+  "token": "<reset_token>",
+  "new_password": "newpassword123"
+}
+```
+
 ---
 
 ## Jobs

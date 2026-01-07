@@ -301,9 +301,70 @@ GitHub Actions workflows:
 - [x] Multi-language support
 
 ### 🔄 Production Release (Pending)
+- [x] Deployment script with reverse proxy detection
+- [x] Email verification and password reset
 - [ ] Kubernetes deployment configs
 - [ ] EAS Build for app stores
 - [ ] Production security hardening
+
+## Production Deployment
+
+### Quick Deploy to Docker Server
+
+```bash
+# On your remote server
+git clone https://github.com/vk3xxx/Truckify.git
+cd Truckify/infrastructure
+
+# Deploy with your domain
+DOMAIN=truckify.example.com SSL_EMAIL=admin@example.com ./deploy.sh
+```
+
+### What the Deploy Script Does
+
+1. **Detects existing reverse proxy** - Checks for nginx, traefik, or nginx-proxy-manager
+2. **If proxy found** - Adds Truckify config and reloads
+3. **If no proxy** - Sets up nginx + certbot with auto-SSL
+4. **Starts all services** - Builds and runs all microservices
+
+### Manual Deployment
+
+```bash
+# 1. Clone and configure
+git clone https://github.com/vk3xxx/Truckify.git
+cd Truckify
+cp .env.example .env
+# Edit .env with production values
+
+# 2. Start services
+cd infrastructure/docker
+docker compose up -d --build
+
+# 3. (Optional) Start reverse proxy
+docker compose -f docker-compose.proxy.yml up -d
+```
+
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `JWT_SECRET` | Secret for JWT signing | Yes |
+| `POSTGRES_PASSWORD` | Database password | Yes |
+| `REDIS_PASSWORD` | Redis password | Yes |
+| `STRIPE_SECRET_KEY` | Stripe API key | For payments |
+| `SMTP_HOST` | Email server | For emails |
+| `SMTP_USER` | Email username | For emails |
+| `SMTP_PASSWORD` | Email password | For emails |
+| `APP_URL` | Public URL | For email links |
+| `ALLOWED_ORIGINS` | CORS origins | Yes |
+
+### Post-Deployment URLs
+
+| Service | URL |
+|---------|-----|
+| Web App | https://your-domain.com |
+| API | https://api.your-domain.com |
+| Grafana | https://your-domain.com:3000 |
 
 ## Contributing
 
