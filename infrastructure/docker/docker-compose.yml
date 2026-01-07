@@ -257,6 +257,30 @@ services:
       - truckify-network
     restart: unless-stopped
 
+  # Shipper Service
+  shipper-service:
+    build:
+      context: ../../
+      dockerfile: services/shipper/Dockerfile
+    container_name: truckify-shipper-service
+    ports:
+      - "8003:8003"
+    environment:
+      - PORT=8003
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=shipper
+      - DB_SSLMODE=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
   # Driver Service
   driver-service:
     build:
