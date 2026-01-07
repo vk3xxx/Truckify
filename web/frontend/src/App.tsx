@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './AuthContext';
 import { WebSocketProvider } from './WebSocketContext';
+import { ToastProvider } from './components/ui';
 import Navbar from './components/Navbar';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -71,14 +72,22 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <WebSocketProvider>
-          <BrowserRouter>
-            <div className="min-h-screen bg-dark-900">
-              <Navbar />
-              <AppRoutes />
-            </div>
-          </BrowserRouter>
-        </WebSocketProvider>
+        <ToastProvider>
+          <WebSocketProvider>
+            <BrowserRouter>
+              <div className="min-h-screen bg-dark-900">
+                {/* Skip to main content for accessibility */}
+                <a href="#main-content" className="skip-to-content">
+                  Skip to main content
+                </a>
+                <Navbar />
+                <main id="main-content">
+                  <AppRoutes />
+                </main>
+              </div>
+            </BrowserRouter>
+          </WebSocketProvider>
+        </ToastProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
