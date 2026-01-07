@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: truckify
       POSTGRES_PASSWORD: truckify_password
       POSTGRES_DB: truckify
-      POSTGRES_MULTIPLE_DATABASES: auth,user,shipper,driver,fleet,job,matching,bidding,tracking,payment,notification,rating,compliance
+      POSTGRES_MULTIPLE_DATABASES: auth,user,shipper,driver,fleet,job,matching,bidding,backhaul,tracking,payment,notification,rating,compliance
     ports:
       - "5432:5432"
     volumes:
