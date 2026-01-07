@@ -47,16 +47,18 @@ class NotificationService {
 
     // Get Expo push token
     try {
-      const tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId: 'your-project-id', // Replace with actual Expo project ID
-      });
+      const tokenData = await Notifications.getExpoPushTokenAsync();
       this.expoPushToken = tokenData.data;
 
       // Send token to backend
       await this.registerTokenWithServer(this.expoPushToken);
+    } catch (error) {
+      console.log('Push token unavailable (dev mode or missing config):', error);
+      // Continue without push token - local notifications still work
+    }
 
-      // Configure Android channel
-      if (Platform.OS === 'android') {
+    // Configure Android channel
+    if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
           name: 'Default',
           importance: Notifications.AndroidImportance.MAX,
@@ -79,7 +81,7 @@ class NotificationService {
 
       return this.expoPushToken;
     } catch (error) {
-      console.error('Failed to get push token:', error);
+      console.error('Failed to initialize notifications:', error);
       return null;
     }
   }
