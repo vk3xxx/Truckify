@@ -45,11 +45,18 @@ type RepositoryInterface interface {
 	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) error
 }
 
+// EmailSender interface for sending emails
+type EmailSender interface {
+	SendVerificationEmail(to, token string) error
+	SendPasswordResetEmail(to, token string) error
+}
+
 // Service handles auth business logic
 type Service struct {
 	repo       RepositoryInterface
 	jwtManager *jwt.JWTManager
 	webauthn   *webauthn.WebAuthn
+	email      EmailSender
 	logger     *logger.Logger
 }
 
@@ -60,6 +67,11 @@ func New(repo RepositoryInterface, jwtManager *jwt.JWTManager, logger *logger.Lo
 		jwtManager: jwtManager,
 		logger:     logger,
 	}
+}
+
+// SetEmailSender sets the email service
+func (s *Service) SetEmailSender(email EmailSender) {
+	s.email = email
 }
 
 // NewWithWebAuthn creates a new auth service with WebAuthn support
@@ -114,7 +126,14 @@ func (s *Service) Register(ctx context.Context, req *model.RegisterRequest) (*mo
 
 	s.logger.Info("User registered", "user_id", user.ID, "email", user.Email)
 
-	// TODO: Send verification email
+	// Send verification email
+	if s.email != nil {
+		go func() {
+			if err := s.email.SendVerificationEmail(user.Email, verificationToken); err != nil {
+				s.logger.Error("Failed to send verification email", "error", err, "email", user.Email)
+			}
+		}()
+	}
 
 	// Generate JWT tokens
 	tokens, err := s.jwtManager.GenerateTokenPair(user.ID.String(), user.Email, string(user.UserType))
@@ -259,7 +278,14 @@ func (s *Service) ForgotPassword(ctx context.Context, req *model.ForgotPasswordR
 
 	s.logger.Info("Password reset requested", "user_id", user.ID, "email", user.Email)
 
-	// TODO: Send password reset email
+	// Send password reset email
+	if s.email != nil {
+		go func() {
+			if err := s.email.SendPasswordResetEmail(user.Email, resetToken); err != nil {
+				s.logger.Error("Failed to send password reset email", "error", err, "email", user.Email)
+			}
+		}()
+	}
 
 	return nil
 }

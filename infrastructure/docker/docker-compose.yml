@@ -602,6 +602,16 @@ services:
       - truckify-network
     restart: unless-stopped
 
+  # Web Frontend (Production)
+  truckify-web:
+    build:
+      context: ../../web/frontend
+      dockerfile: Dockerfile
+    container_name: truckify-web
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   mongodb_data:

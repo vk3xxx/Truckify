@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  proxy:
+    image: nginx:alpine
+    container_name: truckify-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../nginx:/etc/nginx/conf.d
+      - proxy_certs:/etc/letsencrypt
+      - proxy_html:/usr/share/nginx/html
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    container_name: truckify-certbot
+    volumes:
+      - proxy_certs:/etc/letsencrypt
+      - proxy_html:/usr/share/nginx/html
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew; done'"
+    networks:
+      - truckify-network
+
+volumes:
+  proxy_certs:
+  proxy_html:
+
+networks:
+  truckify-network:
+    external: true
