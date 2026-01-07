@@ -123,9 +123,9 @@ export default function Bids() {
       )}
 
       {selectedJob && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-dark-800 rounded-xl w-full max-w-lg max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-dark-700">
+        <div className="modal-overlay">
+          <div className="modal-content w-full max-w-lg">
+            <div className="modal-header">
               <h2 className="text-xl font-semibold">Bids for {selectedJob.pickup.city} → {selectedJob.delivery.city}</h2>
               <button onClick={() => setSelectedJob(null)} className="text-gray-400 hover:text-white"><X className="h-6 w-6" /></button>
             </div>

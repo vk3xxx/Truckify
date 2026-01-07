@@ -136,8 +136,8 @@ export default function FleetManagement() {
         </div>
 
         {showCreateFleet && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="card w-full max-w-md">
+          <div className="modal-overlay">
+            <div className="modal-content w-full max-w-md p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Create Fleet</h3>
                 <button onClick={() => setShowCreateFleet(false)}><X className="h-5 w-5" /></button>
@@ -286,8 +286,8 @@ export default function FleetManagement() {
 
       {/* Add Vehicle Modal */}
       {showAddVehicle && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="card w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="modal-overlay">
+          <div className="modal-content w-full max-w-md p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">Add Vehicle</h3>
               <button onClick={() => setShowAddVehicle(false)}><X className="h-5 w-5" /></button>
@@ -346,8 +346,8 @@ export default function FleetManagement() {
 
       {/* Add Driver Modal */}
       {showAddDriver && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="card w-full max-w-md">
+        <div className="modal-overlay">
+          <div className="modal-content w-full max-w-md p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">Add Driver to Fleet</h3>
               <button onClick={() => setShowAddDriver(false)}><X className="h-5 w-5" /></button>
@@ -369,8 +369,8 @@ export default function FleetManagement() {
 
       {/* Handover Modal */}
       {showHandover && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="card w-full max-w-md">
+        <div className="modal-overlay">
+          <div className="modal-content w-full max-w-md p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">Request Vehicle Handover</h3>
               <button onClick={() => setShowHandover(null)}><X className="h-5 w-5" /></button>

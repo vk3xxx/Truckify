@@ -226,7 +226,7 @@ export default function Reports() {
             </thead>
             <tbody className="divide-y divide-dark-700">
               {filteredJobs.map(job => (
-                <tr key={job.id} className="hover:bg-dark-700/50">
+                <tr key={job.id} className="hover:bg-dark-700">
                   <td className="p-3">{job.pickup.city} → {job.delivery.city}</td>
                   <td className="p-3">{job.cargo_type}</td>
                   <td className="p-3 capitalize">{job.vehicle_type}</td>

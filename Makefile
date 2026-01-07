@@ -141,6 +141,9 @@ dev: ## Start development environment
 status: ## Show status of services
 	$(DOCKER_COMPOSE) ps
 
+health: ## Run system health check
+	@./scripts/health-check.sh
+
 .DEFAULT_GOAL := help
 
 test-integration: ## Run integration tests

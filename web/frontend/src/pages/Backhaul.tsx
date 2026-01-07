@@ -175,7 +175,7 @@ export default function Backhaul() {
       )}
 
       {/* Info Section */}
-      <div className="card mt-8 bg-dark-800/50">
+      <div className="card mt-8">
         <h3 className="font-semibold mb-2">How Backhaul Matching Works</h3>
         <ul className="text-sm text-gray-400 space-y-1">
           <li>• We find loads that are along your route with minimal detour</li>

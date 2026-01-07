@@ -345,8 +345,8 @@ function DriverFormModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-dark-800 rounded-xl max-w-md w-full p-6">
+    <div className="modal-overlay">
+      <div className="modal-content max-w-md w-full p-6">
         <h2 className="text-xl font-semibold mb-6">Add Driver's License</h2>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -403,8 +403,8 @@ function VehicleFormModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-dark-800 rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+    <div className="modal-overlay">
+      <div className="modal-content max-w-md w-full p-6">
         <h2 className="text-xl font-semibold mb-6">Add Vehicle</h2>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>

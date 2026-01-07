@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, MapPin, DollarSign, Truck, ChevronRight, Plus, X, Calendar, Package, FileText, Star, Gavel, Filter, ChevronDown, CreditCard } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { jobsApi, ratingsApi, biddingApiClient, pricingApi, messagingApi } from '../api';
@@ -178,7 +178,7 @@ export default function Jobs() {
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="card mb-6 border-dark-700/50">
+      <div className="card mb-6 border-dark-700">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -316,7 +316,7 @@ export default function Jobs() {
       {/* Jobs List */}
       <div className="space-y-4">
         {filteredJobs.map((job) => (
-          <div key={job.id} className="card hover:border-primary-500/50 transition-all cursor-pointer border-dark-700/50">
+          <div key={job.id} className="card hover:border-primary-500 transition-all cursor-pointer border-dark-700">
             <div className="flex flex-col xl:flex-row xl:items-center gap-6">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-5">
@@ -356,12 +356,12 @@ export default function Jobs() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 xl:gap-4 text-sm border-t xl:border-t-0 xl:border-l border-dark-700/50 pt-5 xl:pt-0 xl:pl-6">
-                <div className="flex items-center gap-2 bg-dark-700/50 px-3 py-2 rounded-lg border border-dark-600/50">
+              <div className="flex flex-wrap items-center gap-3 xl:gap-4 text-sm border-t xl:border-t-0 xl:border-l border-dark-700 pt-5 xl:pt-0 xl:pl-6">
+                <div className="flex items-center gap-2 bg-dark-700 px-3 py-2 rounded-lg border border-dark-600">
                   <Truck className="h-4 w-4 text-gray-400" />
                   <span className="text-gray-300 capitalize">{job.vehicle_type.replace('_', ' ')}</span>
                 </div>
-                <div className="flex items-center gap-2 bg-dark-700/50 px-3 py-2 rounded-lg border border-dark-600/50">
+                <div className="flex items-center gap-2 bg-dark-700 px-3 py-2 rounded-lg border border-dark-600">
                   <MapPin className="h-4 w-4 text-gray-400" />
                   <span className="text-gray-300">{job.weight.toLocaleString()} kg</span>
                 </div>
@@ -435,9 +435,9 @@ function PlaceBidModal({ job, onClose }: { job: Job; onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-dark-800 rounded-xl w-full max-w-md">
-        <div className="flex items-center justify-between p-6 border-b border-dark-700">
+    <div className="modal-overlay">
+      <div className="modal-content w-full max-w-md">
+        <div className="modal-header">
           <h2 className="text-xl font-semibold">Place Bid</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white"><X className="h-6 w-6" /></button>
         </div>
@@ -470,6 +470,7 @@ function PlaceBidModal({ job, onClose }: { job: Job; onClose: () => void }) {
 
 function JobDetailsModal({ job, onClose, onUpdate }: { job: Job; onClose: () => void; onUpdate: () => void }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [bids, setBids] = useState<{ id: string; amount: number; notes?: string; status: string; created_at: string }[]>([]);
@@ -574,9 +575,9 @@ function JobDetailsModal({ job, onClose, onUpdate }: { job: Job; onClose: () => 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-dark-800 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-dark-700">
+    <div className="modal-overlay">
+      <div className="modal-content w-full max-w-lg">
+        <div className="modal-header">
           <h2 className="text-xl font-semibold">Job Details</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white p-1"><X className="h-6 w-6" /></button>
         </div>
@@ -742,7 +743,7 @@ function JobDetailsModal({ job, onClose, onUpdate }: { job: Job; onClose: () => 
             </button>
           )}
           {job.status === 'in_transit' && (
-            <button onClick={() => window.location.href = `/tracking/${job.id}`} className="btn-secondary w-full">
+            <button onClick={() => navigate(`/tracking/${job.id}`)} className="btn-secondary w-full">
               📍 Track Shipment
             </button>
           )}
@@ -802,9 +803,9 @@ function CreateJobModal({ onClose, onCreated }: { onClose: () => void; onCreated
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-dark-800 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-dark-700">
+    <div className="modal-overlay">
+      <div className="modal-content w-full max-w-lg">
+        <div className="modal-header">
           <h2 className="text-xl font-semibold">Create Shipment</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white"><X className="h-6 w-6" /></button>
         </div>

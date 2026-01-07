@@ -120,7 +120,7 @@ export default function Dashboard() {
           </div>
           <div className="space-y-3">
             {pendingMatches.slice(0, 3).map((match) => (
-              <div key={match.id} className="flex items-center justify-between p-4 bg-dark-700/50 rounded-xl border border-dark-600/50">
+              <div key={match.id} className="flex items-center justify-between p-4 bg-dark-700 rounded-xl border border-dark-600">
                 <div>
                   <div className="font-semibold text-white">Match Score: {match.score.toFixed(0)}%</div>
                   <div className="text-sm text-gray-400 mt-1">{match.distance_km.toFixed(1)} km away • Expires {new Date(match.expires_at).toLocaleTimeString()}</div>
@@ -170,7 +170,7 @@ export default function Dashboard() {
             {jobs.length > 0 ? (
               <div className="space-y-4">
                 {jobs.slice(0, 3).map((job) => (
-                  <div key={job.id} className="bg-dark-700/50 rounded-xl p-5 hover:bg-dark-700 border border-dark-600/50 hover:border-dark-600 transition-all cursor-pointer">
+                  <div key={job.id} className="bg-dark-700 rounded-xl p-5 hover:bg-dark-600 border border-dark-600 hover:border-dark-500 transition-all cursor-pointer">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-xs text-gray-500 font-mono font-medium">{job.id.slice(0, 8)}</span>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -216,11 +216,11 @@ export default function Dashboard() {
           <div className="card">
             <h2 className="text-xl font-semibold mb-6 text-white">Quick Actions</h2>
             <div className="space-y-2.5">
-              <Link to="/jobs" className="flex items-center justify-between p-4 bg-dark-700/50 rounded-xl hover:bg-dark-700 border border-dark-600/50 hover:border-dark-600 transition-all group">
+              <Link to="/jobs" className="flex items-center justify-between p-4 bg-dark-700 rounded-xl hover:bg-dark-600 border border-dark-600 hover:border-dark-500 transition-all group">
                 <span className="font-medium text-white">{isDriver ? 'Browse Jobs' : 'Create Shipment'}</span>
                 <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-primary-500 transition-colors" />
               </Link>
-              <Link to="/profile" className="flex items-center justify-between p-4 bg-dark-700/50 rounded-xl hover:bg-dark-700 border border-dark-600/50 hover:border-dark-600 transition-all group">
+              <Link to="/profile" className="flex items-center justify-between p-4 bg-dark-700 rounded-xl hover:bg-dark-600 border border-dark-600 hover:border-dark-500 transition-all group">
                 <span className="font-medium text-white">Edit Profile</span>
                 <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-primary-500 transition-colors" />
               </Link>
@@ -233,7 +233,7 @@ export default function Dashboard() {
                       setDriverProfile(res.data.data);
                     } catch {}
                   }}
-                  className="flex items-center justify-between p-4 bg-dark-700/50 rounded-xl hover:bg-dark-700 border border-dark-600/50 hover:border-dark-600 transition-all w-full text-left group"
+                  className="flex items-center justify-between p-4 bg-dark-700 rounded-xl hover:bg-dark-600 border border-dark-600 hover:border-dark-500 transition-all w-full text-left group"
                 >
                   <span className="font-medium text-white">{driverProfile?.is_available ? 'Go Offline' : 'Go Online'}</span>
                   <div className={`w-3 h-3 rounded-full ${driverProfile?.is_available ? 'bg-green-500 shadow-sm shadow-green-500/50' : 'bg-gray-500'}`} />

@@ -84,7 +84,7 @@ export default function Landing() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 sm:py-32 bg-dark-800/30">
+      <section className="py-24 sm:py-32 bg-dark-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 sm:mb-20">
             <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">Everything you need to move freight</h2>
@@ -129,7 +129,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-dark-800/50 border-t border-dark-700/50 py-12">
+      <footer className="bg-dark-800 border-t border-dark-700 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center space-x-2.5">

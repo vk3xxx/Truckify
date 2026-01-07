@@ -85,7 +85,7 @@ export default function Notifications() {
         ) : notifications.map(notification => (
           <div
             key={notification.id}
-            className={`card flex items-start gap-4 border-dark-700/50 ${!notification.read ? 'border-primary-500/30 bg-primary-500/5' : ''}`}
+            className={`card flex items-start gap-4 border-dark-700 ${!notification.read ? 'border-primary-500 bg-dark-700' : ''}`}
           >
             <div className={`p-2 rounded-lg ${!notification.read ? 'bg-primary-500/20 text-primary-400' : 'bg-dark-700 text-gray-400'}`}>
               {getIcon(notification.type)}

@@ -568,6 +568,40 @@ services:
       - truckify-network
     restart: unless-stopped
 
+  # System Admin Service
+  admin-service:
+    build:
+      context: ../../
+      dockerfile: services/admin/Dockerfile
+    container_name: truckify-admin-service
+    ports:
+      - "8017:8017"
+    environment:
+      - PORT=8017
+      - ADMIN_PORT=8017
+      - LOG_LEVEL=info
+      - API_PORT=8000
+      - API_TIMEOUT=30
+      - RATE_LIMIT=1000
+      - JWT_SECRET=your-secret-key-change-in-production
+      - JWT_EXPIRY=15
+      - REFRESH_TOKEN_EXPIRY=7
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=truckify
+      - DB_PASSWORD=truckify_password
+      - DB_NAME=truckify
+      - DB_SSLMODE=disable
+      - PAYMENT_API_KEY=your-payment-key
+      - SMS_API_KEY=your-sms-key
+      - EMAIL_API_KEY=your-email-key
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - truckify-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   mongodb_data:

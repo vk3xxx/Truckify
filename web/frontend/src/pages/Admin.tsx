@@ -139,7 +139,7 @@ export default function Admin() {
                 </thead>
                 <tbody className="divide-y divide-dark-700">
                   {users.map(u => (
-                    <tr key={u.id} className="hover:bg-dark-700/50">
+                    <tr key={u.id} className="hover:bg-dark-700">
                       <td className="p-4">{u.email}</td>
                       <td className="p-4 capitalize">{u.user_type}</td>
                       <td className="p-4">

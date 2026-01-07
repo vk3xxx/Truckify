@@ -104,8 +104,8 @@ export default function Register() {
                     }}
                     className={`w-full p-4 rounded-xl border transition-all flex items-center ${
                       userType === type.id
-                        ? 'border-primary-500 bg-primary-500/10 shadow-lg shadow-primary-500/10'
-                        : 'border-dark-700 hover:border-dark-600 bg-dark-700/50 hover:bg-dark-700'
+                        ? 'border-primary-500 bg-dark-700 shadow-lg shadow-primary-500/10'
+                        : 'border-dark-700 hover:border-dark-600 bg-dark-800 hover:bg-dark-700'
                     }`}
                   >
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center mr-4 shrink-0 transition-all ${

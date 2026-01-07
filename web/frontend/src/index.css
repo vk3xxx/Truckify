@@ -239,6 +239,45 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
 }
 
+/* Modal overlay - solid background, no transparency */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 9999;
+}
+
+/* Modal content - solid background */
+.modal-content {
+  background-color: var(--color-dark-800);
+  border-radius: 1rem;
+  border: 1px solid var(--color-dark-600);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-dark-700);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid var(--color-dark-700);
+}
+
 /* Form input icons */
 .input-icon {
   position: absolute;

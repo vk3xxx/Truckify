@@ -24,6 +24,7 @@ import Documents from './pages/Documents';
 import Insurance from './pages/Insurance';
 import Messages from './pages/Messages';
 import Reports from './pages/Reports';
+import SystemAdmin from './pages/SystemAdmin';
 
 const queryClient = new QueryClient();
 
@@ -48,7 +49,7 @@ function AppRoutes() {
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/jobs" element={<ProtectedRoute><Jobs /></ProtectedRoute>} />
       <Route path="/bids" element={<ProtectedRoute><Bids /></ProtectedRoute>} />
-      <Route path="/tracking" element={<ProtectedRoute><Tracking /></ProtectedRoute>} />
+      <Route path="/tracking/:jobId" element={<ProtectedRoute><Tracking /></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
       <Route path="/fleet" element={<ProtectedRoute><Fleet /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
@@ -60,8 +61,8 @@ function AppRoutes() {
       <Route path="/insurance" element={<ProtectedRoute><Insurance /></ProtectedRoute>} />
       <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
       <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-      <Route path="/tracking/:jobId" element={<ProtectedRoute><Tracking /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+      <Route path="/system-admin" element={<ProtectedRoute><SystemAdmin /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
     </Routes>
   );

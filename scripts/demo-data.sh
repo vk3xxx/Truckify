@@ -219,26 +219,27 @@ load_data() {
   echo ""
   echo "Adding tracking data..."
   
-  # Add tracking points along Melbourne-Sydney route
+  # Melbourne-Sydney route points from OSRM (actual road coordinates)
+  # With stop at Albury area (point 4)
   ROUTE_COORDS=(
-    "-37.8136,144.9631"   # Melbourne
-    "-37.5622,145.2731"   # Lilydale
-    "-37.0500,145.9500"   # Seymour
-    "-36.3833,146.3167"   # Wangaratta
-    "-36.1167,146.8833"   # Albury
-    "-35.5500,147.3500"   # Wagga
-    "-35.1000,147.8000"   # Cootamundra
-    "-34.7500,148.6500"   # Yass
-    "-35.2809,149.1300"   # Canberra
-    "-34.4278,150.8931"   # Wollongong
+    "-37.8136,144.9630,80"    # Melbourne
+    "-37.6408,144.9287,80"    # Craigieburn area
+    "-37.0633,145.1008,80"    # Seymour area
+    "-36.1666,146.5175,0"     # Albury area - STOP
+    "-36.1666,146.5175,0"     # Albury - still stopped
+    "-36.1666,146.5175,0"     # Albury - still stopped
+    "-35.2277,147.7865,80"    # Wagga area
+    "-34.8063,148.9064,80"    # Goulburn area
+    "-34.6722,150.0647,80"    # Current location
   )
   
   for i in "${!ROUTE_COORDS[@]}"; do
-    IFS=',' read -r lat lng <<< "${ROUTE_COORDS[$i]}"
+    IFS=',' read -r lat lng speed <<< "${ROUTE_COORDS[$i]}"
     curl -s -X POST "$TRACKING_URL/tracking/update" -H "Content-Type: application/json" -H "Authorization: Bearer $DRIVER2_TOKEN" -H "X-User-ID: $DRIVER2_ID" \
-      -d "{\"job_id\":\"$JOB_TRACK_ID\",\"driver_id\":\"$DRIVER2_ID\",\"latitude\":$lat,\"longitude\":$lng,\"speed\":80,\"heading\":45,\"event_type\":\"location\"}" > /dev/null
+      -d "{\"job_id\":\"$JOB_TRACK_ID\",\"driver_id\":\"$DRIVER2_ID\",\"latitude\":$lat,\"longitude\":$lng,\"speed\":$speed,\"heading\":45,\"event_type\":\"location\"}" > /dev/null
+    sleep 0.1
   done
-  echo -e "${GREEN}✓ Added tracking data (10 points)${NC}"
+  echo -e "${GREEN}✓ Added tracking data (9 points with stop in Albury)${NC}"
 
   echo ""
   echo "Creating completed jobs with ratings..."

@@ -202,9 +202,9 @@ export default function Documents() {
 
       {/* Upload Modal */}
       {showUpload && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-dark-800 rounded-2xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b border-dark-700">
+        <div className="modal-overlay">
+          <div className="modal-content w-full max-w-md">
+            <div className="modal-header">
               <h2 className="text-xl font-semibold">Upload Document</h2>
               <button onClick={() => setShowUpload(false)} className="text-gray-400 hover:text-white">✕</button>
             </div>
@@ -240,9 +240,9 @@ export default function Documents() {
 
       {/* View Modal */}
       {viewDoc && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-dark-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-dark-700">
+        <div className="modal-overlay">
+          <div className="modal-content w-full max-w-2xl">
+            <div className="modal-header">
               <h2 className="text-xl font-semibold truncate">{viewDoc.filename}</h2>
               <button onClick={() => setViewDoc(null)} className="text-gray-400 hover:text-white">✕</button>
             </div>
