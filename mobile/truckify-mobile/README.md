@@ -1,28 +1,36 @@
 # Truckify Mobile App
 
-Cross-platform mobile app for iOS (iPhone/iPad) and Android built with React Native and Expo.
+Cross-platform mobile app for iOS (iPhone/iPad) and Android built with React Native and Expo SDK 54.
 
 ## Features
 
-- **Authentication**: Login/Register with secure token storage
-- **Home Dashboard**: Stats, quick actions, recent activity
-- **Jobs**: Browse, filter, and accept freight jobs
-- **Tracking**: Real-time GPS tracking with location permissions
-- **Profile**: User profile, settings, logout
+- **Authentication**: Email/password, biometric (Face ID/Touch ID), passkeys/WebAuthn
+- **Job Management**: Browse, filter, accept, and track freight jobs
+- **Real-Time Tracking**: Live GPS with OSRM road routing on maps
+- **Documents**: Upload license, insurance, vehicle registration
+- **Proof of Delivery**: Photo capture, signature pad, recipient name
+- **Invoices**: Payment history with status tracking
+- **Messaging**: E2E encrypted chat with shippers/dispatchers (3-way key escrow)
+- **Push Notifications**: Job alerts, delivery updates with deep linking
+- **Offline Support**: Queue actions when disconnected, auto-sync
+- **Multi-Language**: English, Spanish, Swahili
 
 ## Tech Stack
 
-- **Framework**: React Native with Expo SDK 52
+- **Framework**: React Native with Expo SDK 54
 - **Navigation**: Expo Router (file-based routing)
 - **State**: React Context API
-- **Storage**: Expo SecureStore (encrypted)
-- **Location**: Expo Location
+- **Storage**: Expo SecureStore (encrypted), AsyncStorage (cache)
+- **Location**: Expo Location with background tracking
+- **Maps**: react-native-maps with OSRM routing
+- **Crypto**: expo-crypto for E2E encryption
+- **Testing**: Jest with 37 tests
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20+
 - Expo Go app on your phone (for testing)
 - Xcode (for iOS simulator)
 - Android Studio (for Android emulator)
@@ -37,47 +45,60 @@ npm install
 ### Start Development Server
 
 ```bash
-npm start
+npx expo start
 ```
 
-This opens Expo DevTools. Then:
-
+Then:
 - **iOS Simulator**: Press `i`
 - **Android Emulator**: Press `a`
 - **Physical Device**: Scan QR code with Expo Go app
-
-### Run on Specific Platform
-
-```bash
-# iOS
-npm run ios
-
-# Android
-npm run android
-```
 
 ## Project Structure
 
 ```
 mobile/truckify-mobile/
-├── app/                    # Expo Router pages
-│   ├── _layout.tsx        # Root layout
-│   ├── index.tsx          # Entry redirect
-│   ├── (auth)/            # Auth screens
-│   │   ├── login.tsx
-│   │   └── register.tsx
-│   └── (tabs)/            # Main app tabs
-│       ├── home.tsx
-│       ├── jobs.tsx
-│       ├── tracking.tsx
-│       └── profile.tsx
+├── app/                       # Expo Router pages
+│   ├── _layout.tsx           # Root layout with notifications
+│   ├── index.tsx             # Entry redirect
+│   ├── delivery-complete.tsx # POD capture screen
+│   ├── (auth)/               # Auth screens
+│   │   ├── login.tsx         # Login with biometric/passkey
+│   │   └── register.tsx      # Registration with passkey option
+│   └── (tabs)/               # Main app tabs
+│       ├── _layout.tsx       # Tab navigation
+│       ├── home.tsx          # Dashboard
+│       ├── jobs.tsx          # Job listings
+│       ├── tracking.tsx      # GPS tracking with map
+│       ├── documents.tsx     # Document management
+│       ├── invoices.tsx      # Payment history
+│       ├── messages.tsx      # E2E encrypted chat
+│       ├── notifications.tsx # Notification center
+│       └── profile.tsx       # Settings & language
 ├── src/
-│   ├── contexts/          # React contexts
-│   │   └── AuthContext.tsx
-│   └── services/          # API services
-│       └── api.ts
-├── assets/                # Images, icons
-├── app.json              # Expo config
+│   ├── __tests__/            # Jest tests
+│   │   ├── api.test.ts
+│   │   ├── chat.test.ts
+│   │   ├── documents.test.ts
+│   │   ├── encryption.test.ts
+│   │   └── offline.test.ts
+│   ├── __mocks__/            # Test mocks
+│   ├── contexts/
+│   │   └── AuthContext.tsx   # Auth state with all methods
+│   └── services/
+│       ├── api.ts            # API client
+│       ├── biometric.ts      # Face ID/Touch ID
+│       ├── chat.ts           # WebSocket messaging
+│       ├── documents.ts      # Document upload
+│       ├── encryption.ts     # E2E encryption
+│       ├── i18n.ts           # Internationalization
+│       ├── location.ts       # GPS tracking
+│       ├── notifications.ts  # Push notifications
+│       ├── offline.ts        # Offline queue
+│       └── passkey.ts        # WebAuthn/Passkey
+├── assets/images/            # App icons, splash
+├── app.json                  # Expo config
+├── eas.json                  # EAS Build config
+├── jest.config.js            # Test config
 └── package.json
 ```
 
@@ -85,113 +106,122 @@ mobile/truckify-mobile/
 
 ### API URL
 
-Set the API URL in environment:
-
-```bash
-EXPO_PUBLIC_API_URL=http://your-api-url:8001
+Set in `src/services/api.ts`:
+```typescript
+const API_URL = 'http://your-api-url:8001';
 ```
 
-Or modify `src/services/api.ts` directly.
+### App Configuration (app.json)
 
-### App Configuration
-
-Edit `app.json` for:
-- App name and slug
-- Bundle identifiers (iOS/Android)
-- Permissions
-- Splash screen
-- Icons
-
-## Building for Production
-
-### iOS (App Store)
-
-```bash
-npx eas build --platform ios
-```
-
-### Android (Play Store)
-
-```bash
-npx eas build --platform android
-```
-
-### Both Platforms
-
-```bash
-npx eas build --platform all
-```
-
-## Permissions
-
-### iOS (Info.plist)
-- `NSLocationWhenInUseUsageDescription`
-- `NSLocationAlwaysUsageDescription`
-
-### Android (AndroidManifest.xml)
-- `ACCESS_COARSE_LOCATION`
-- `ACCESS_FINE_LOCATION`
-- `ACCESS_BACKGROUND_LOCATION`
+- Bundle ID: `com.truckify.mobile`
+- Dark theme by default
+- iOS: Face ID, camera, photo, location permissions
+- Android: Biometric, camera, location permissions
 
 ## Testing
 
-### On Physical Device
+```bash
+# Run all tests
+npm test
 
-1. Install Expo Go from App Store / Play Store
-2. Run `npm start`
-3. Scan QR code with Expo Go
+# Watch mode
+npm run test:watch
 
-### On Simulator/Emulator
+# Coverage report
+npm run test:coverage
+```
+
+**Test Coverage: 5 suites, 37 tests**
+- API service tests
+- Chat/WebSocket tests
+- Document upload tests
+- E2E encryption tests
+- Offline caching tests
+
+## Building for Production
+
+### Configure EAS
 
 ```bash
-# iOS Simulator (requires Xcode)
-npm run ios
+npx eas login
+npx eas build:configure
+```
 
-# Android Emulator (requires Android Studio)
-npm run android
+### Build for App Stores
+
+```bash
+# iOS (App Store)
+npx eas build --platform ios --profile production
+
+# Android (Play Store)
+npx eas build --platform android --profile production
+
+# Preview builds (internal testing)
+npx eas build --platform all --profile preview
 ```
 
 ## Screens
 
-### Login
-- Email/password authentication
-- Link to registration
+### Authentication
+- **Login**: Email/password, biometric toggle, passkey login
+- **Register**: User type selection, passkey registration option
 
-### Register
-- User type selection (Driver, Shipper, Fleet Operator, Dispatcher)
-- Email/password registration
+### Main Tabs
+- **Home**: Stats, quick actions, availability toggle
+- **Jobs**: Filter by status, accept jobs, view details
+- **Tracking**: Live map with route, stops, truck position
+- **Documents**: Upload/manage license, insurance, registration
+- **Invoices**: Payment history, paid/unpaid filters
+- **Messages**: E2E encrypted chat with 🔒 indicators
+- **Profile**: Settings, language selector, security options
 
-### Home
-- Welcome message
-- Availability toggle (drivers)
-- Stats grid (jobs, earnings, rating)
-- Quick action buttons
-- Recent activity feed
+### Other Screens
+- **Delivery Complete**: Photo POD, signature capture, recipient name
 
-### Jobs
-- Filter tabs (All, Available, Active)
-- Job cards with route, pay, details
-- Accept job button
+## Services
 
-### Tracking
-- Map placeholder (ready for integration)
-- Current location display
-- Active delivery card
-- Progress bar
-- ETA and distance stats
+### Authentication
+- JWT token management with auto-refresh
+- Biometric login (Face ID, Touch ID, Fingerprint)
+- Passkey/WebAuthn support
 
-### Profile
-- User avatar and info
-- Stats (jobs, rating, membership)
-- Menu items (vehicles, documents, payments, etc.)
-- Logout button
+### E2E Encryption
+- 3-way key escrow (sender, recipient, admin)
+- Per-message session keys
+- expo-crypto for secure randomness
 
-## Next Steps
+### Offline Support
+- Cache jobs, profile data locally
+- Queue actions when offline
+- Auto-sync when back online
 
-- [ ] Integrate real map (react-native-maps)
-- [ ] Push notifications
-- [ ] Real-time job updates (WebSocket)
-- [ ] Document upload
-- [ ] Payment integration
-- [ ] Offline support
-- [ ] Biometric authentication
+### Push Notifications
+- Expo Notifications
+- Deep linking to relevant screens
+- Notification preferences
+
+## Permissions
+
+### iOS
+- `NSLocationWhenInUseUsageDescription`
+- `NSLocationAlwaysUsageDescription`
+- `NSFaceIDUsageDescription`
+- `NSCameraUsageDescription`
+- `NSPhotoLibraryUsageDescription`
+
+### Android
+- `ACCESS_COARSE_LOCATION`
+- `ACCESS_FINE_LOCATION`
+- `ACCESS_BACKGROUND_LOCATION`
+- `CAMERA`
+- `USE_BIOMETRIC`
+- `USE_FINGERPRINT`
+
+## Multi-Language Support
+
+Supported languages:
+- English (en)
+- Spanish (es) - Español
+- Swahili (sw) - Kiswahili
+
+Change language in Profile → Language settings.

@@ -9,9 +9,12 @@ A scalable, cloud-agnostic trucking platform built with Go microservices archite
 - **Backhaul Optimization**: Reduce empty miles and maximize efficiency
 - **Regulatory Compliance**: Built-in compliance for Australia (NHVR) and Kenya (NTSA)
 - **Real-Time Tracking**: GPS tracking with geofencing and ETA calculations
-- **Route Optimization**: Multi-stop route planning with fuel cost estimation
+- **Route Optimization**: Multi-stop route planning with OSRM road routing
 - **Payment Processing**: Integrated payment gateway with multi-currency support
-- **Analytics & BI**: Comprehensive dashboards and predictive analytics
+- **Analytics & BI**: Comprehensive dashboards, demand forecasting, and dynamic pricing
+- **Mobile Apps**: iOS and Android apps with offline support
+- **End-to-End Encryption**: 3-way key escrow for secure messaging
+- **Multi-Language**: English, Spanish, and Swahili support
 - **Cloud-Agnostic**: Not tied to any specific cloud provider
 - **Highly Scalable**: Microservices architecture with horizontal scaling
 
@@ -19,361 +22,298 @@ A scalable, cloud-agnostic trucking platform built with Go microservices archite
 
 ### Microservices
 
-1. **API Gateway** (Port 8000) - Single entry point, routing, authentication
-2. **Auth Service** (Port 8001) - User authentication and authorization
-3. **User Service** (Port 8002) - User profile management
-4. **Shipper Service** (Port 8003) - Shipper-specific functionality
-5. **Driver Service** (Port 8004) - Driver profiles and qualifications
-6. **Fleet Service** (Port 8005) - Fleet management
-7. **Job Service** (Port 8006) - Freight job management
-8. **Matching Service** (Port 8007) - Job-to-driver matching
-9. **Bidding Service** (Port 8008) - Bidding system
-10. **Route Service** (Port 8009) - Route planning and optimization
-11. **Backhaul Service** (Port 8010) - Backhaul opportunity matching
-12. **Tracking Service** (Port 8011) - Real-time GPS tracking
-13. **Payment Service** (Port 8012) - Payment processing
-14. **Rating Service** (Port 8013) - Ratings and reviews
-15. **Notification Service** (Port 8014) - Push notifications, SMS, email
-16. **Analytics Service** (Port 8015) - Business intelligence
-17. **Compliance Service** (Port 8016) - Regulatory compliance
+| Service | Port | Description |
+|---------|------|-------------|
+| API Gateway | 8000 | Single entry point, routing, authentication |
+| Auth Service | 8001 | User authentication, passkeys, JWT |
+| User Service | 8002 | User profiles, documents |
+| Shipper Service | 8003 | Shipper-specific functionality |
+| Driver Service | 8004 | Driver profiles and qualifications |
+| Fleet Service | 8005 | Fleet management |
+| Job Service | 8006 | Freight job management |
+| Matching Service | 8007 | Job-to-driver matching |
+| Bidding Service | 8008 | Bidding system |
+| Route Service | 8009 | Route planning and optimization |
+| Backhaul Service | 8010 | Backhaul opportunity matching |
+| Tracking Service | 8011 | Real-time GPS tracking |
+| Payment Service | 8012 | Payment processing |
+| Rating Service | 8013 | Ratings and reviews |
+| Notification Service | 8014 | Push notifications, SMS, email, WebSocket |
+| Analytics Service | 8015 | BI, demand forecasting, dynamic pricing |
+| Compliance Service | 8016 | Regulatory compliance |
+| Admin Service | 8017 | System configuration management |
 
 ### Technology Stack
 
 - **Backend**: Go 1.21+
+- **Frontend**: React 18 + TypeScript + Vite + TailwindCSS
+- **Mobile**: React Native (Expo SDK 54)
 - **Databases**: PostgreSQL (with PostGIS), MongoDB, Redis
 - **Message Broker**: NATS
 - **Service Discovery**: Consul
 - **Monitoring**: Prometheus + Grafana
 - **Logging**: ELK Stack (Elasticsearch, Logstash, Kibana)
 - **Containers**: Docker + Docker Compose
-- **API Gateway**: Custom Go gateway with rate limiting
-
-## Prerequisites
-
-- Go 1.21 or higher
-- Docker and Docker Compose
-- Make (optional, for using Makefile commands)
+- **CI/CD**: GitHub Actions
+- **Testing**: Go test, Jest, Vitest
 
 ## Quick Start
 
-### 1. Clone the Repository
+### Prerequisites
+
+- Go 1.21 or higher
+- Node.js 20+
+- Docker and Docker Compose
+- Make (optional)
+
+### 1. Clone and Setup
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/vk3xxx/Truckify.git
 cd Truckify
-```
-
-### 2. Set Up Environment Variables
-
-```bash
 cp .env.example .env
-# Edit .env and update the JWT_SECRET and other sensitive values
 ```
 
-### 3. Start All Services
+### 2. Start Backend Services
 
 ```bash
 make dev
 ```
 
-This command will:
-- Start all infrastructure services (PostgreSQL, MongoDB, Redis, NATS, Consul, etc.)
-- Run database migrations
-- Start the API Gateway and Auth Service
-
-### 4. Verify Services
+### 3. Start Frontend
 
 ```bash
-make status
+cd web/frontend
+npm install
+npm run dev
 ```
 
-### 5. Access the Services
+### 4. Start Mobile App
 
-- **API Gateway**: http://localhost:8000
-- **Auth Service**: http://localhost:8001
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000 (admin/admin)
-- **Kibana**: http://localhost:5601
-- **Consul UI**: http://localhost:8500
+```bash
+cd mobile/truckify-mobile
+npm install
+npx expo start
+```
+
+### 5. Access Services
+
+| Service | URL |
+|---------|-----|
+| Web Frontend | http://localhost:5173 |
+| API Gateway | http://localhost:8000 |
+| Auth Service | http://localhost:8001 |
+| Grafana | http://localhost:3000 |
+| Prometheus | http://localhost:9090 |
 
 ## API Documentation
 
-### Authentication Endpoints
-
-#### Register a New User
+### Authentication
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/auth/register \
+# Register
+curl -X POST http://localhost:8001/register \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "driver@example.com",
-    "password": "securepassword123",
-    "user_type": "driver"
-  }'
+  -d '{"email": "driver@example.com", "password": "password123", "user_type": "driver"}'
+
+# Login
+curl -X POST http://localhost:8001/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "driver@example.com", "password": "password123"}'
+
+# Passkey Login
+curl -X POST http://localhost:8001/passkey/login/begin \
+  -H "Content-Type: application/json" \
+  -d '{"email": "driver@example.com"}'
 ```
 
-#### Login
+### Analytics & Forecasting
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "driver@example.com",
-    "password": "securepassword123"
-  }'
+# Dashboard Stats
+curl http://localhost:8015/analytics/dashboard
+
+# Demand Forecast (next 7 days)
+curl http://localhost:8015/analytics/forecast/demand?days=7
+
+# Dynamic Pricing
+curl "http://localhost:8015/analytics/pricing/recommend?origin=Sydney&destination=Melbourne&base_price=1500"
+
+# Market Conditions
+curl http://localhost:8015/analytics/market/conditions?region=Sydney
+
+# Demand Heatmap
+curl http://localhost:8015/analytics/forecast/heatmap
 ```
 
-#### Refresh Token
+### Jobs
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/auth/refresh \
+# List Jobs
+curl http://localhost:8006/jobs -H "Authorization: Bearer $TOKEN"
+
+# Create Job
+curl -X POST http://localhost:8006/jobs \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{
-    "refresh_token": "your-refresh-token"
-  }'
+  -d '{"pickup_city": "Sydney", "delivery_city": "Melbourne", "price": 2500}'
 ```
 
-## Development
-
-### Project Structure
+## Project Structure
 
 ```
 Truckify/
-├── api-gateway/          # API Gateway service
-├── services/             # All microservices
-│   ├── auth/            # Authentication service
-│   ├── user/            # User service
-│   ├── driver/          # Driver service
+├── api-gateway/              # API Gateway service
+├── services/                 # Backend microservices
+│   ├── admin/               # System admin & config
+│   ├── analytics/           # BI, forecasting, pricing
+│   ├── auth/                # Authentication & passkeys
+│   ├── compliance/          # NHVR/NTSA compliance
+│   ├── driver/              # Driver management
+│   ├── job/                 # Job management
+│   ├── notification/        # Push, SMS, WebSocket
+│   ├── tracking/            # GPS tracking
 │   └── ...
-├── shared/              # Shared packages and utilities
+├── shared/                   # Shared Go packages
 │   └── pkg/
-│       ├── database/    # Database connections
-│       ├── jwt/         # JWT utilities
-│       ├── logger/      # Structured logging
-│       ├── validator/   # Request validation
-│       └── middleware/  # HTTP middlewares
-├── infrastructure/      # Docker, monitoring, logging configs
-├── web/                 # Frontend (to be implemented)
-├── scripts/             # Utility scripts
-└── docs/                # Documentation
+│       ├── jwt/             # JWT utilities
+│       ├── logger/          # Structured logging
+│       ├── middleware/      # HTTP middlewares
+│       └── validator/       # Request validation
+├── web/
+│   └── frontend/            # React web application
+├── mobile/
+│   └── truckify-mobile/     # React Native mobile app
+├── infrastructure/          # Docker, K8s configs
+├── .github/
+│   └── workflows/           # CI/CD pipelines
+└── docs/                    # Documentation
 ```
 
-### Available Make Commands
+## Mobile App Features
 
-```bash
-make help              # Show all available commands
-make install           # Install dependencies
-make build             # Build all services
-make test              # Run tests
-make test-coverage     # Run tests with coverage
-make docker-up         # Start all services
-make docker-down       # Stop all services
-make docker-restart    # Restart all services
-make migrate-up        # Run database migrations
-make migrate-down      # Rollback migrations
-make logs              # View all service logs
-make logs-gateway      # View API Gateway logs
-make logs-auth         # View Auth Service logs
-make db-shell          # Open PostgreSQL shell
-make redis-cli         # Open Redis CLI
-make dev               # Start development environment
-make clean             # Clean build artifacts
-```
-
-### Running Services Locally (Without Docker)
-
-#### 1. Start Infrastructure Services Only
-
-```bash
-# Start only databases and supporting services
-docker-compose -f infrastructure/docker/docker-compose.yml up -d postgres mongodb redis nats consul
-```
-
-#### 2. Run Migrations
-
-```bash
-make migrate-up
-```
-
-#### 3. Run Services
-
-```bash
-# Terminal 1: API Gateway
-make run-gateway
-
-# Terminal 2: Auth Service
-make run-auth
-```
+- **Authentication**: Email/password, biometric (Face ID/Touch ID), passkeys
+- **Job Management**: Browse, accept, track jobs
+- **Real-Time Tracking**: Live GPS with OSRM road routing
+- **Documents**: Upload license, insurance, vehicle registration
+- **Proof of Delivery**: Photo capture, signature, recipient name
+- **Invoices**: Payment history and status
+- **Messaging**: E2E encrypted chat with shippers/dispatchers
+- **Offline Support**: Queue actions when disconnected
+- **Multi-Language**: English, Spanish, Swahili
 
 ## Testing
 
 ### Run All Tests
 
 ```bash
-make test
+# Backend
+go test ./...
+
+# Frontend
+cd web/frontend && npm test
+
+# Mobile
+cd mobile/truckify-mobile && npm test
 ```
 
-### Run Tests with Coverage
+### Test Coverage
 
-```bash
-make test-coverage
-```
+| Component | Suites | Tests |
+|-----------|--------|-------|
+| Mobile | 5 | 37 |
+| Frontend | 3 | 10 |
+| Backend | 14 | 50+ |
 
-### Test Individual Services
+## CI/CD
 
-```bash
-cd services/auth
-go test -v ./...
-```
+GitHub Actions workflows:
 
-## Database Migrations
-
-### Create a New Migration
-
-```bash
-# Create SQL file in services/<service-name>/migrations/
-touch services/auth/migrations/002_add_new_field.sql
-```
-
-### Run Migrations
-
-```bash
-make migrate-up
-```
-
-### Rollback Migrations
-
-```bash
-make migrate-down
-```
-
-## Monitoring & Observability
-
-### Prometheus Metrics
-
-Access Prometheus at http://localhost:9090
-
-All services expose metrics at `/metrics` endpoint.
-
-### Grafana Dashboards
-
-Access Grafana at http://localhost:3000 (admin/admin)
-
-Pre-configured dashboards for:
-- Service health and performance
-- Database metrics
-- API Gateway metrics
-- System resources
-
-### Logs
-
-Access Kibana at http://localhost:5601 for centralized logging.
-
-All services use structured JSON logging for easy parsing and searching.
-
-## Compliance
-
-### Australia (NHVR - National Heavy Vehicle Regulator)
-
-- Chain of Responsibility (CoR) tracking
-- Mass Management (weight limits)
-- Fatigue Management (Hours of Service)
-- Vehicle Standards compliance
-
-### Kenya (NTSA - National Transport and Safety Authority)
-
-- Axle Load Control
-- Driver Licensing verification
-- Vehicle Inspection certificates
-- Speed Limiting compliance
-- Insurance Requirements
-
-## Deployment
-
-### Production Considerations
-
-1. **Environment Variables**: Use secure secret management (HashiCorp Vault, AWS Secrets Manager)
-2. **TLS/SSL**: Enable HTTPS for all services
-3. **Database**: Use managed database services or set up replication
-4. **Scaling**: Use Kubernetes for container orchestration
-5. **Monitoring**: Set up alerts in Prometheus/Grafana
-6. **Backup**: Implement regular database backups
-7. **CI/CD**: Set up GitHub Actions or GitLab CI for automated deployments
-
-### Docker Deployment
-
-```bash
-# Build images
-make docker-build
-
-# Deploy
-make docker-up
-```
-
-### Kubernetes Deployment (Future)
-
-```bash
-# Deploy to Kubernetes cluster
-kubectl apply -f k8s/
-```
+- **ci.yml**: Build and test on push/PR
+- **pr-check.yml**: Smart path-filtered checks
+- **deploy.yml**: Build images, deploy to staging/production
+- **mobile-build.yml**: EAS builds for iOS/Android
 
 ## Security
 
-- JWT-based authentication with short-lived access tokens (15 min)
-- Refresh tokens for extended sessions (7 days)
-- Password hashing with bcrypt
-- Rate limiting to prevent abuse
-- Input validation on all endpoints
-- SQL injection prevention
-- XSS protection
-- CSRF protection
-- Secure headers (HSTS, X-Frame-Options, etc.)
+- JWT authentication (15 min access, 7 day refresh)
+- Passkey/WebAuthn support
+- Biometric authentication
+- E2E encryption for messaging (3-way key escrow)
+- AES-256-GCM for config encryption
+- bcrypt password hashing
+- Rate limiting
+- Input validation
+- CORS protection
+
+## Compliance
+
+### Australia (NHVR)
+- Chain of Responsibility (CoR)
+- Mass Management
+- Fatigue Management
+- Vehicle Standards
+
+### Kenya (NTSA)
+- Axle Load Control
+- Driver Licensing
+- Vehicle Inspection
+- Speed Limiting
+- Insurance Requirements
+
+## Roadmap
+
+### ✅ Phase 1: Foundation
+- [x] Project structure and shared libraries
+- [x] API Gateway
+- [x] Auth Service with passkeys
+- [x] Docker Compose setup
+
+### ✅ Phase 2: Core Business Services
+- [x] User Service with documents
+- [x] Driver Service
+- [x] Fleet Service
+- [x] Job Service
+
+### ✅ Phase 3: Smart Features
+- [x] Matching Service
+- [x] Bidding Service
+- [x] Route Service
+- [x] Backhaul Service
+
+### ✅ Phase 4: Operations
+- [x] Tracking Service
+- [x] Payment Service
+- [x] Rating Service
+- [x] Notification Service with WebSocket
+
+### ✅ Phase 5: Intelligence & Compliance
+- [x] Analytics Service
+- [x] Compliance Service
+- [x] AI-powered demand forecasting
+- [x] Dynamic pricing
+
+### ✅ Phase 6: Frontend & Mobile
+- [x] Web frontend (React + TypeScript)
+- [x] Mobile apps (React Native/Expo)
+- [x] System Admin page
+- [x] E2E encrypted messaging
+- [x] Multi-language support
+
+### 🔄 Production Release (Pending)
+- [ ] Kubernetes deployment configs
+- [ ] EAS Build for app stores
+- [ ] Production security hardening
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## Roadmap
-
-### Phase 1: Foundation (Current)
-- [x] Project structure and shared libraries
-- [x] API Gateway
-- [x] Auth Service
-- [x] Docker Compose setup
-- [ ] User Service
-- [ ] Database schemas for all services
-
-### Phase 2: Core Business Services
-- [ ] Shipper Service
-- [ ] Driver Service
-- [ ] Fleet Service
-- [ ] Job Service
-
-### Phase 3: Smart Features
-- [ ] Matching Service
-- [ ] Bidding Service
-- [ ] Route Service
-- [ ] Backhaul Service
-
-### Phase 4: Operations
-- [ ] Tracking Service
-- [ ] Payment Service
-- [ ] Rating Service
-- [ ] Notification Service
-
-### Phase 5: Intelligence & Compliance
-- [ ] Analytics Service
-- [ ] Compliance Service
-- [ ] AI-powered demand forecasting
-- [ ] Dynamic pricing
-
-### Phase 6: Frontend & Mobile
-- [ ] Web frontend (React + TypeScript)
-- [ ] Mobile apps (React Native)
+3. Write tests for your changes
+4. Ensure all tests pass (`make test`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
 ## License
 
@@ -381,10 +321,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Support
 
-For support, email support@truckify.com or open an issue in the GitHub repository.
-
-## Acknowledgments
-
-- Uber Freight for inspiration
-- Go community for excellent libraries and tools
-- Open source contributors
+- Email: support@truckify.com
+- GitHub Issues: [Create an issue](https://github.com/vk3xxx/Truckify/issues)
