@@ -20,45 +20,50 @@ export interface PushNotification {
   data?: Record<string, any>;
 }
 
-class NotificationService {
-  private expoPushToken: string | null = null;
-  private notificationListener: Notifications.Subscription | null = null;
-  private responseListener: Notifications.Subscription | null = null;
+let expoPushToken: string | null = null;
+let notificationListener: Notifications.Subscription | null = null;
+let responseListener: Notifications.Subscription | null = null;
 
+async function registerTokenWithServer(token: string): Promise<void> {
+  try {
+    await api.registerPushToken(token, Platform.OS);
+  } catch (error) {
+    console.error('Failed to register push token:', error);
+  }
+}
+
+export const notificationService = {
   async initialize(): Promise<string | null> {
     if (!Device.isDevice) {
       console.log('Push notifications require a physical device');
       return null;
     }
 
-    // Request permissions
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus !== 'granted') {
-      console.log('Push notification permission denied');
-      return null;
-    }
-
-    // Get Expo push token
     try {
-      const tokenData = await Notifications.getExpoPushTokenAsync();
-      this.expoPushToken = tokenData.data;
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
 
-      // Send token to backend
-      await this.registerTokenWithServer(this.expoPushToken);
-    } catch (error) {
-      console.log('Push token unavailable (dev mode or missing config):', error);
-      // Continue without push token - local notifications still work
-    }
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
 
-    // Configure Android channel
-    if (Platform.OS === 'android') {
+      if (finalStatus !== 'granted') {
+        console.log('Push notification permission denied');
+        return null;
+      }
+
+      // Get Expo push token
+      try {
+        const tokenData = await Notifications.getExpoPushTokenAsync();
+        expoPushToken = tokenData.data;
+        await registerTokenWithServer(expoPushToken);
+      } catch (error) {
+        console.log('Push token unavailable (dev mode):', error);
+      }
+
+      // Configure Android channels
+      if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
           name: 'Default',
           importance: Notifications.AndroidImportance.MAX,
@@ -79,43 +84,26 @@ class NotificationService {
         });
       }
 
-      return this.expoPushToken;
+      return expoPushToken;
     } catch (error) {
       console.error('Failed to initialize notifications:', error);
       return null;
     }
-  }
+  },
 
-  private async registerTokenWithServer(token: string): Promise<void> {
-    try {
-      await api.registerPushToken(token, Platform.OS);
-    } catch (error) {
-      console.error('Failed to register push token:', error);
-    }
-  }
+  addNotificationReceivedListener(callback: (notification: Notifications.Notification) => void): void {
+    notificationListener = Notifications.addNotificationReceivedListener(callback);
+  },
 
-  addNotificationReceivedListener(
-    callback: (notification: Notifications.Notification) => void
-  ): void {
-    this.notificationListener = Notifications.addNotificationReceivedListener(callback);
-  }
-
-  addNotificationResponseListener(
-    callback: (response: Notifications.NotificationResponse) => void
-  ): void {
-    this.responseListener = Notifications.addNotificationResponseReceivedListener(callback);
-  }
+  addNotificationResponseListener(callback: (response: Notifications.NotificationResponse) => void): void {
+    responseListener = Notifications.addNotificationResponseReceivedListener(callback);
+  },
 
   removeListeners(): void {
-    if (this.notificationListener) {
-      Notifications.removeNotificationSubscription(this.notificationListener);
-    }
-    if (this.responseListener) {
-      Notifications.removeNotificationSubscription(this.responseListener);
-    }
-  }
+    if (notificationListener) Notifications.removeNotificationSubscription(notificationListener);
+    if (responseListener) Notifications.removeNotificationSubscription(responseListener);
+  },
 
-  // Schedule a local notification
   async scheduleLocalNotification(
     title: string,
     body: string,
@@ -124,76 +112,41 @@ class NotificationService {
   ): Promise<string> {
     return await Notifications.scheduleNotificationAsync({
       content: { title, body, data, sound: true },
-      trigger: trigger || null, // null = immediate
+      trigger: trigger || null,
     });
-  }
+  },
 
-  // Cancel a scheduled notification
   async cancelNotification(notificationId: string): Promise<void> {
     await Notifications.cancelScheduledNotificationAsync(notificationId);
-  }
+  },
 
-  // Cancel all notifications
   async cancelAllNotifications(): Promise<void> {
     await Notifications.cancelAllScheduledNotificationsAsync();
-  }
+  },
 
-  // Get badge count
   async getBadgeCount(): Promise<number> {
     return await Notifications.getBadgeCountAsync();
-  }
+  },
 
-  // Set badge count
   async setBadgeCount(count: number): Promise<void> {
     await Notifications.setBadgeCountAsync(count);
-  }
+  },
 
   getToken(): string | null {
-    return this.expoPushToken;
-  }
-}
+    return expoPushToken;
+  },
+};
 
-export const notificationService = new NotificationService();
-
-// Helper to send test notifications (for development)
 export async function sendTestNotification(type: NotificationType): Promise<void> {
   const notifications: Record<NotificationType, PushNotification> = {
-    job_alert: {
-      title: '🚛 New Job Available!',
-      body: 'Sydney → Melbourne, $1,250 - 878km',
-      data: { type: 'job_alert', jobId: '123' },
-    },
-    job_accepted: {
-      title: '✅ Job Accepted',
-      body: 'Your bid for Job #456 has been accepted',
-      data: { type: 'job_accepted', jobId: '456' },
-    },
-    message: {
-      title: '💬 New Message',
-      body: 'John from ABC Logistics: "What\'s your ETA?"',
-      data: { type: 'message', chatId: '789' },
-    },
-    payment: {
-      title: '💰 Payment Received',
-      body: '$1,250 has been deposited to your account',
-      data: { type: 'payment', amount: 1250 },
-    },
-    reminder: {
-      title: '⏰ Pickup Reminder',
-      body: 'Job #123 pickup in 30 minutes at Sydney CBD',
-      data: { type: 'reminder', jobId: '123' },
-    },
-    system: {
-      title: '📢 System Update',
-      body: 'New features available! Update your app.',
-      data: { type: 'system' },
-    },
+    job_alert: { title: '🚛 New Job Available!', body: 'Sydney → Melbourne, $1,250', data: { type: 'job_alert', jobId: '123' } },
+    job_accepted: { title: '✅ Job Accepted', body: 'Your bid for Job #456 has been accepted', data: { type: 'job_accepted', jobId: '456' } },
+    message: { title: '💬 New Message', body: 'John: "What\'s your ETA?"', data: { type: 'message', chatId: '789' } },
+    payment: { title: '💰 Payment Received', body: '$1,250 deposited', data: { type: 'payment', amount: 1250 } },
+    reminder: { title: '⏰ Pickup Reminder', body: 'Job #123 pickup in 30 minutes', data: { type: 'reminder', jobId: '123' } },
+    system: { title: '📢 System Update', body: 'New features available!', data: { type: 'system' } },
   };
 
-  const notification = notifications[type];
-  await notificationService.scheduleLocalNotification(
-    notification.title,
-    notification.body,
-    notification.data
-  );
+  const n = notifications[type];
+  await notificationService.scheduleLocalNotification(n.title, n.body, n.data);
 }
