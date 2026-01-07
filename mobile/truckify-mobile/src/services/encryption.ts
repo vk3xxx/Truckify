@@ -3,7 +3,10 @@ import * as SecureStore from 'expo-secure-store';
 
 const KEY_PRIVATE = 'e2e_private_key';
 const KEY_PUBLIC = 'e2e_public_key';
-const ADMIN_PUBLIC_KEY_URL = 'http://10.0.10.214:8001/admin/public-key';
+
+// Get API URL from environment or use default
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8001';
+const ADMIN_PUBLIC_KEY_URL = `${API_URL}/admin/public-key`;
 
 export interface EncryptedMessage {
   ciphertext: string;

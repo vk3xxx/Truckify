@@ -335,7 +335,13 @@ func (h *Handler) DeleteDocument(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) VerifyDocument(w http.ResponseWriter, r *http.Request) {
 	requestID, _ := r.Context().Value("request_id").(string)
-	// TODO: Check admin role
+	
+	// Check admin role
+	userType := r.Header.Get("X-User-Type")
+	if userType != "admin" {
+		response.Forbidden(w, "Admin access required", "", requestID)
+		return
+	}
 
 	id, err := uuid.Parse(mux.Vars(r)["id"])
 	if err != nil {

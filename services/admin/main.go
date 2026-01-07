@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -451,10 +452,25 @@ func restoreConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
+	allowedOrigins := getEnvOrDefault("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000")
+	origins := make(map[string]bool)
+	for _, o := range strings.Split(allowedOrigins, ",") {
+		origins[strings.TrimSpace(o)] = true
+	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		
+		// Check if origin is allowed
+		if origins[origin] || origins["*"] {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else if origin == "" {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+		
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)

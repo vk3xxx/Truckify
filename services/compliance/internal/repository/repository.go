@@ -151,6 +151,11 @@ func (r *Repository) UpdateClaimStatus(ctx context.Context, id uuid.UUID, status
 }
 
 func (r *Repository) AddClaimDocument(ctx context.Context, claimID uuid.UUID, docID string) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE insurance_claims SET documents = documents || $1::jsonb, updated_at = $2 WHERE id = $3`, `["`+docID+`"]`, time.Now(), claimID)
+	// Properly marshal docID to prevent SQL injection
+	docJSON, err := json.Marshal([]string{docID})
+	if err != nil {
+		return err
+	}
+	_, err = r.db.ExecContext(ctx, `UPDATE insurance_claims SET documents = documents || $1::jsonb, updated_at = $2 WHERE id = $3`, string(docJSON), time.Now(), claimID)
 	return err
 }
