@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"truckify/services/notification/internal/handler"
+	"truckify/services/notification/internal/repository"
 	"truckify/services/notification/internal/service"
 	"truckify/services/notification/internal/websocket"
 	"truckify/shared/pkg/config"
@@ -38,7 +39,8 @@ func main() {
 	hub := websocket.NewHub()
 	go hub.Run()
 
-	svc := service.New(log, db)
+	repo := repository.New(db)
+	svc := service.New(log, repo)
 	h := handler.New(svc, hub)
 
 	router := mux.NewRouter()

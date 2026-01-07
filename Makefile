@@ -103,6 +103,7 @@ migrate-up: ## Run database migrations
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d payment < services/payment/migrations/001_create_payments.sql
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d payment < services/payment/migrations/002_pricing.sql
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d payment < services/payment/migrations/003_stripe_subscription.sql
+	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d notification < services/notification/migrations/001_messaging.sql
 	@echo "Migrations completed!"
 
 migrate-down: ## Rollback database migrations
@@ -117,6 +118,7 @@ migrate-down: ## Rollback database migrations
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d bidding -c "DROP TABLE IF EXISTS bids CASCADE;"
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d tracking -c "DROP TABLE IF EXISTS tracking_locations CASCADE; DROP TABLE IF EXISTS stops CASCADE; DROP TABLE IF EXISTS trips CASCADE;"
 	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d payment -c "DROP TABLE IF EXISTS stripe_subscriptions CASCADE; DROP TABLE IF EXISTS commission_tiers CASCADE; DROP TABLE IF EXISTS subscription_tiers CASCADE; DROP TABLE IF EXISTS transactions CASCADE; DROP TABLE IF EXISTS invoices CASCADE; DROP TABLE IF EXISTS platform_settings CASCADE;"
+	docker exec -i $(POSTGRES_CONTAINER) psql -U $(POSTGRES_USER) -d notification -c "DROP TABLE IF EXISTS messages CASCADE; DROP TABLE IF EXISTS conversations CASCADE; DROP TABLE IF EXISTS notifications CASCADE;"
 	@echo "Rollback completed!"
 
 db-shell: ## Open PostgreSQL shell
